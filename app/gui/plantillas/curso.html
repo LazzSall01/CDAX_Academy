@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ curso.titulo }} - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-8">
+        <!-- Breadcrumb -->
+        <nav class="mb-8">
+            <ol class="flex items-center gap-2 text-sm font-sans text-cedax-cream/40">
+                <li><a href="/" class="hover:text-cedax-secondary transition-colors">Inicio</a></li>
+                <li>/</li>
+                <li><a href="/#cursos" class="hover:text-cedax-secondary transition-colors">Programas</a></li>
+                <li>/</li>
+                <li class="text-cedax-secondary">{{ curso.titulo }}</li>
+            </ol>
+        </nav>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-12">
+            <!-- Main Content -->
+            <div class="lg:col-span-2">
+                <!-- Imagen -->
+                <div class="relative h-80 rounded-lg overflow-hidden mb-8">
+                    {% if curso.imagen_url %}
+                    <img src="{{ curso.imagen_url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-cedax-primary-light to-cedax-primary flex items-center justify-center">
+                        <span class="font-display text-8xl text-cedax-secondary/10">CDAX</span>
+                    </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-cedax-primary via-transparent to-transparent"></div>
+                </div>
+                
+                <!-- Badges -->
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <span class="badge-luxury">{{ curso.tipo_programa }}</span>
+                    {% if curso.estado_inscripcion == 'INSCRIPCIONES_ABIERTAS' %}
+                    <span class="status-open px-3 py-1 text-xs font-sans uppercase tracking-wider">Inscripciones Abiertas</span>
+                    {% elif curso.estado_inscripcion == 'PROXIMAMENTE' %}
+                    <span class="status-closed px-3 py-1 text-xs font-sans uppercase tracking-wider">Próximamente</span>
+                    {% endif %}
+                </div>
+                
+                <!-- Título -->
+                <h1 class="font-display text-4xl md:text-5xl text-white mb-6">{{ curso.titulo }}</h1>
+                
+                <!-- Descripción -->
+                <p class="font-sans text-lg text-cedax-cream/70 leading-relaxed mb-8">
+                    {{ curso.descripcion_larga or curso.descripcion }}
+                </p>
+                
+                <!-- Info del programa -->
+                <div class="glass-luxury p-6 rounded-lg mb-8">
+                    <h3 class="font-display text-xl text-white mb-4">Detalles del Programa</h3>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                        {% if curso.duracion_horas %}
+                        <div>
+                            <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-1">Duración</p>
+                            <p class="font-sans text-lg text-cedax-secondary">{{ curso.duracion_horas }} hrs</p>
+                        </div>
+                        {% endif %}
+                        {% if curso.modalidad %}
+                        <div>
+                            <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-1">Modalidad</p>
+                            <p class="font-sans text-lg text-cedax-secondary">{{ curso.modalidad }}</p>
+                        </div>
+                        {% endif %}
+                        {% if curso.fecha_inicio %}
+                        <div>
+                            <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-1">Inicio</p>
+                            <p class="font-sans text-lg text-cedax-secondary">{{ curso.fecha_inicio }}</p>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-1">Diploma</p>
+                            <p class="font-sans text-lg text-cedax-secondary">{% if curso.incluye_diploma %}Sí{% else %}No{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Requisitos -->
+                {% if curso.requisitos_admision %}
+                <div class="mb-8">
+                    <h3 class="font-display text-2xl text-white mb-4">Requisitos de Admisión</h3>
+                    <div class="glass-luxury p-6 rounded-lg">
+                        <p class="font-sans text-cedax-cream/70">{{ curso.requisitos_admision }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="lg:col-span-1">
+                <div class="glass-luxury-dark p-6 rounded-lg sticky top-28">
+                    <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-2">Inversión</p>
+                    <p class="font-display text-5xl text-cedax-secondary mb-1">${{ curso.precio }}</p>
+                    <p class="font-sans text-sm text-cedax-cream/40 mb-6">MXN</p>
+                    
+                    {% if tiene_acceso %}
+                    <a href="/aula/{{ curso.slug }}" class="btn-luxury w-full py-3 text-sm rounded-sm text-center block mb-4">
+                        Acceder al Aula
+                    </a>
+                    {% else %}
+                    <a href="/api/cursos/{{ curso.id }}/comprar" class="btn-luxury w-full py-3 text-sm rounded-sm text-center block mb-4">
+                        Inscribirse Ahora
+                    </a>
+                    {% endif %}
+                    
+                    <a href="https://wa.me/5215530000000?text=Hola, me interesa información sobre {{ curso.titulo }}" 
+                       class="btn-luxury-outline w-full py-3 text-sm rounded-sm text-center block mb-6">
+                        Solicitar Información
+                    </a>
+                    
+                    <div class="border-t border-cedax-secondary/10 pt-4">
+                        <p class="font-sans text-xs text-cedax-cream/40 mb-3">Este programa incluye:</p>
+                        <ul class="space-y-2 text-sm text-cedax-cream/60">
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cedax-secondary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                {% if curso.incluye_materiales %}Materiales incluidos{% else %}Sin materiales{% endif %}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cedax-secondary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                {% if curso.incluye_diploma %}Certificado de finalización{% else %}Sin certificado{% endif %}
+                            </li>
+                            <li class="flex items-center gap-2">
+                                <svg class="w-4 h-4 text-cedax-secondary" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+                                Acceso a comunidad alumni
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

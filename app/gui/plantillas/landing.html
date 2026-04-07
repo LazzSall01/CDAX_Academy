@@ -1,0 +1,251 @@
+{% extends "base.html" %}
+
+{% block titulo %}CDAX Academy - Excelencia en Odontología{% endblock %}
+
+{% block contenido %}
+<!-- Hero Section -->
+<section class="relative min-h-screen flex items-center justify-center bg-luxury-black overflow-hidden">
+    <!-- Fondo con partículas y gradiente -->
+    <div class="absolute inset-0 bg-grid-luxury"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-luxury-black via-luxury-charcoal/50 to-luxury-black"></div>
+    
+    <!-- Elementos decorativos -->
+    <div class="absolute top-20 left-10 w-72 h-72 bg-luxury-gold/5 rounded-full blur-3xl"></div>
+    <div class="absolute bottom-20 right-10 w-96 h-96 bg-luxury-gold/5 rounded-full blur-3xl"></div>
+    
+    <!-- Contenido principal -->
+    <div class="relative z-10 text-center px-8 max-w-5xl mx-auto">
+        <!-- Pre-título -->
+        <p class="font-sans text-luxury-gold text-xs tracking-[0.5em] uppercase mb-6 animate-fade-in">
+            Instituto de Formación de Élite
+        </p>
+        
+        <!-- Título principal con efecto dorado -->
+        <h1 class="font-display text-6xl md:text-8xl lg:text-9xl font-bold mb-8 leading-tight">
+            <span class="text-white">CDAX</span>
+            <br>
+            <span class="text-gold-luxury">Academy</span>
+        </h1>
+        
+        <!-- Subtítulo -->
+        <p class="font-sans text-xl md:text-2xl text-luxury-cream/70 max-w-2xl mx-auto mb-12 animate-fade-in-up animate-delay-2">
+            Formación odontológica de excelencia para profesionales que buscan superar los límites de lo ordinario.
+        </p>
+        
+        <!-- Línea decorativa -->
+        <div class="w-32 h-px bg-luxury-gold mx-auto mb-12 animate-fade-in animate-delay-3"></div>
+        
+        <!-- CTA Buttons -->
+        <div class="flex flex-col md:flex-row gap-6 justify-center items-center animate-fade-in-up animate-delay-4">
+            <a href="#programas" class="btn-luxury px-10 py-4 text-sm rounded-sm shadow-lg">
+                Explorar Programas
+            </a>
+            <a href="https://wa.me/5215530000000?text=Hola, me interesa información sobre CDAX Academy" 
+               class="btn-luxury-outline px-10 py-4 text-sm rounded-sm">
+                Consultar Admissions
+            </a>
+        </div>
+        
+        <!-- Stats -->
+        <div class="grid grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto animate-fade-in-up animate-delay-5">
+            <div class="text-center">
+                <p class="font-display text-4xl text-gold-luxury">15+</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Años de Experiencia</p>
+            </div>
+            <div class="text-center">
+                <p class="font-display text-4xl text-gold-luxury">2000+</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Profesionales Formados</p>
+            </div>
+            <div class="text-center">
+                <p class="font-display text-4xl text-gold-luxury">50+</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Programas de Excelencia</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Scroll indicator -->
+    <div class="absolute bottom-10 left-1/2 -translate-x-1/2 animate-float">
+        <div class="w-6 h-10 border border-luxury-gold/30 rounded-full flex justify-center pt-2">
+            <div class="w-1 h-3 bg-luxury-gold rounded-full animate-pulse"></div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección de Programas -->
+<section id="programas" class="py-32 bg-luxury-black relative">
+    <div class="absolute inset-0 bg-grid-luxury opacity-30"></div>
+    
+    <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <!-- Header -->
+        <div class="text-center mb-20">
+            <p class="font-sans text-luxury-gold text-xs tracking-[0.4em] uppercase mb-4">NUESTRA OFERTA</p>
+            <h2 class="font-display text-5xl md:text-6xl text-white mb-6">Programas de<br><span class="text-gold-luxury">Excelencia</span></h2>
+            <p class="font-sans text-luxury-cream/60 max-w-xl mx-auto">
+                Formación especializada diseñada para odontólogos que buscan la maestría clínica.
+            </p>
+        </div>
+        
+        <!-- Programas Grid -->
+        {% if cursos %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for curso in cursos %}
+            <div class="card-luxury rounded-lg overflow-hidden group animate-luxury" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                <!-- Imagen -->
+                <div class="relative h-56 overflow-hidden">
+                    {% if curso.imagen_url %}
+                    <img src="{{ curso.imagen_url }}" alt="{{ curso.titulo }}" 
+                         class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-luxury-graphite to-luxury-charcoal flex items-center justify-center">
+                        <span class="font-display text-6xl text-luxury-gold/20">{{ loop.index }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-transparent"></div>
+                    
+                    <!-- Badge de tipo -->
+                    <div class="absolute top-4 left-4">
+                        <span class="badge-luxury">
+                            {{ curso.tipo_programa }}
+                        </span>
+                    </div>
+                    
+                    <!-- Estado -->
+                    {% if curso.estado_inscripcion == 'INSCRIPCIONES_ABIERTAS' %}
+                    <div class="absolute top-4 right-4 status-open px-3 py-1 text-xs font-sans uppercase tracking-wider">
+                        Abiertas
+                    </div>
+                    {% elif curso.estado_inscripcion == 'PROXIMAMENTE' %}
+                    <div class="absolute top-4 right-4 status-closed px-3 py-1 text-xs font-sans uppercase tracking-wider">
+                        Próximamente
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <!-- Contenido -->
+                <div class="p-6">
+                    <h3 class="font-display text-2xl text-white mb-3 group-hover:text-gold-luxury transition-colors">
+                        {{ curso.titulo }}
+                    </h3>
+                    <p class="font-sans text-luxury-cream/60 text-sm mb-4 line-clamp-2">
+                        {{ curso.descripcion[:150] }}...
+                    </p>
+                    
+                    <!-- Info adicional -->
+                    <div class="flex flex-wrap gap-4 text-xs font-sans text-luxury-cream/50 mb-6">
+                        {% if curso.duracion_horas %}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {{ curso.duracion_horas }} hrs
+                        </span>
+                        {% endif %}
+                        {% if curso.modalidad %}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            {{ curso.modalidad }}
+                        </span>
+                        {% endif %}
+                        {% if curso.fecha_inicio %}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            {{ curso.fecha_inicio }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Precio y acción -->
+                    <div class="flex justify-between items-center pt-4 border-t border-luxury-gold/10">
+                        <div>
+                            <p class="font-display text-2xl text-gold-luxury">${{ curso.precio }}</p>
+                            <p class="font-sans text-xs text-luxury-cream/40">MXN</p>
+                        </div>
+                        <a href="/curso/{{ curso.slug }}" class="btn-luxury-outline px-5 py-2 text-xs rounded-sm">
+                            Ver Detalles
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20">
+            <p class="font-sans text-luxury-cream/60">Pronto announcesmos nuevos programas.</p>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Sección de Por Qué Elegirnos -->
+<section class="py-32 bg-luxury-charcoal relative overflow-hidden">
+    <!-- Elementos decorativos -->
+    <div class="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-luxury-gold/20 to-transparent"></div>
+    <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-luxury-gold/20 to-transparent"></div>
+    
+    <div class="max-w-7xl mx-auto px-8 relative z-10">
+        <div class="text-center mb-20">
+            <p class="font-sans text-luxury-gold text-xs tracking-[0.4em] uppercase mb-4">POR QUÉ CDAX</p>
+            <h2 class="font-display text-5xl md:text-6xl text-white mb-6">La Diferencia<br><span class="text-gold-luxury">Academy</span></h2>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Card 1 -->
+            <div class="glass-luxury p-8 rounded-lg text-center group hover:border-luxury-gold/30 transition-all duration-500 animate-luxury">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-luxury-gold/10 flex items-center justify-center group-hover:bg-luxury-gold/20 transition-colors">
+                    <svg class="w-8 h-8 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                </div>
+                <h3 class="font-display text-2xl text-white mb-4">Expertise Clínico</h3>
+                <p class="font-sans text-luxury-cream/60 text-sm leading-relaxed">
+                    Instructores con más de 25 años de experiencia clínica activa, compartiendo protocolos probados en práctica privada.
+                </p>
+            </div>
+            
+            <!-- Card 2 -->
+            <div class="glass-luxury p-8 rounded-lg text-center group hover:border-luxury-gold/30 transition-all duration-500 animate-luxury animate-delay-1">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-luxury-gold/10 flex items-center justify-center group-hover:bg-luxury-gold/20 transition-colors">
+                    <svg class="w-8 h-8 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                </div>
+                <h3 class="font-display text-2xl text-white mb-4">Comunidad Elite</h3>
+                <p class="font-sans text-luxury-cream/60 text-sm leading-relaxed">
+                    Acceso a nuestra red privada de más de 2,000 profesionales. Compartición de casos, mentoría y networking de por vida.
+                </p>
+            </div>
+            
+            <!-- Card 3 -->
+            <div class="glass-luxury p-8 rounded-lg text-center group hover:border-luxury-gold/30 transition-all duration-500 animate-luxury animate-delay-2">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-full bg-luxury-gold/10 flex items-center justify-center group-hover:bg-luxury-gold/20 transition-colors">
+                    <svg class="w-8 h-8 text-luxury-gold" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+                </div>
+                <h3 class="font-display text-2xl text-white mb-4">Certificación Premium</h3>
+                <p class="font-sans text-luxury-cream/60 text-sm leading-relaxed">
+                    Diplomas con reconocimiento internacional. Valor curricular para tu desarrollo profesional continuo.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Final -->
+<section class="py-32 bg-luxury-black relative overflow-hidden">
+    <div class="absolute inset-0">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-luxury-gold/5 rounded-full blur-3xl"></div>
+    </div>
+    
+    <div class="max-w-4xl mx-auto px-8 text-center relative z-10">
+        <h2 class="font-display text-5xl md:text-6xl text-white mb-8">
+            Transforma Tu<br><span class="text-gold-luxury">Carrera Profesional</span>
+        </h2>
+        <p class="font-sans text-xl text-luxury-cream/60 mb-12">
+            Únete a la siguiente generación de odontólogos de élite. Tu futuro comienza aquí.
+        </p>
+        <div class="flex flex-col md:flex-row gap-6 justify-center">
+            <a href="https://wa.me/5215530000000?text=Hola, quiero información sobre los programas de CDAX Academy" 
+               class="btn-luxury px-12 py-4 text-sm rounded-sm shadow-lg inline-flex items-center gap-3">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.113-.074.312-.199.469-.292.156-.093.347-.237.525-.347.297-.198 1.495-.74 1.764-.839.271-.099.47-.174.67.039.194.198.767.679.879.78.173.099.293.149.47.099.271-.198.767-.699 1.016-1.286.253-.599.271-1.196.271-1.295-.001-.148-.029-.297-.074-.447z"/></svg>
+                Contáctanos
+            </a>
+            <a href="/login" class="btn-luxury-outline px-12 py-4 text-sm rounded-sm">
+                Comenzar Ahora
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}

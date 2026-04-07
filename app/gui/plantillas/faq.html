@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block titulo %}Preguntas Frecuentes - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark pt-32 pb-20 relative">
+    <div class="absolute inset-0 bg-grid-luxury opacity-20"></div>
+    
+    <!-- Header -->
+    <div class="text-center mb-20 relative z-10">
+        <p class="font-sans text-cedax-secondary text-xs tracking-[0.4em] uppercase mb-4">AYUDA</p>
+        <h1 class="font-display text-6xl md:text-7xl text-cedax-cream mb-6">Preguntas<br><span class="text-gold-luxury">Frecuentes</span></h1>
+        <div class="w-24 h-px bg-cedax-secondary mx-auto mb-6"></div>
+        <p class="font-sans text-lg text-cedax-beige/70 max-w-xl mx-auto">
+            Encuentra respuestas a las preguntas más comunes sobre nuestros programas.
+        </p>
+    </div>
+
+    <!-- FAQs -->
+    <div class="max-w-4xl mx-auto px-8 relative z-10">
+        {% if faqs %}
+        <div class="space-y-4">
+            {% for faq in faqs %}
+            <div class="glass-luxury rounded-lg overflow-hidden border border-cedax-secondary/10 hover:border-cedax-secondary/30 transition-all duration-300">
+                <button class="faq-toggle w-full px-6 py-5 text-left flex justify-between items-center" onclick="toggleFaq({{ faq.id }})">
+                    <span class="font-sans text-lg text-cedax-cream">{{ faq.pregunta }}</span>
+                    <svg class="faq-icon w-5 h-5 text-cedax-secondary transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                    </svg>
+                </button>
+                <div id="faq-answer-{{ faq.id }}" class="hidden px-6 pb-5">
+                    <div class="border-t border-cedax-secondary/20 pt-4">
+                        <p class="font-sans text-cedax-beige/70 leading-relaxed">{{ faq.respuesta }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="glass-luxury p-12 rounded-lg text-center">
+            <p class="font-sans text-cedax-beige/60">No hay preguntas disponibles.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Contacto -->
+    <div class="max-w-2xl mx-auto mt-16 px-8">
+        <div class="glass-luxury-dark p-8 rounded-lg text-center border border-cedax-secondary/20">
+            <h3 class="font-display text-xl text-cedax-cream mb-3">¿No encontraste lo que buscabas?</h3>
+            <p class="font-sans text-cedax-beige/70 mb-6">Nuestro equipo está disponible para resolver tus dudas.</p>
+            <a href="https://wa.me/5215530000000?text=Hola, tengo una pregunta sobre CDAX Academy" 
+               class="btn-luxury inline-flex items-center gap-2 px-6 py-3 text-sm rounded-sm">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.113-.074.312-.199.469-.292.156-.093.347-.237.525-.347.297-.198 1.495-.74 1.764-.839.271-.099.47-.174.67.039.194.198.767.679.879.78.173.099.293.149.47.099.271-.198.767-.699 1.016-1.286.253-.599.271-1.196.271-1.295-.001-.148-.029-.297-.074-.447z"/></svg>
+                Escríbenos
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleFaq(id) {
+    const answer = document.getElementById('faq-answer-' + id);
+    const icon = event.currentTarget.querySelector('.faq-icon');
+    
+    if (answer.classList.contains('hidden')) {
+        answer.classList.remove('hidden');
+        icon.classList.add('rotate-180');
+    } else {
+        answer.classList.add('hidden');
+        icon.classList.remove('rotate-180');
+    }
+}
+</script>
+{% endblock %}

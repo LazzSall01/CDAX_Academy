@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block titulo %}{{ titulo_pagina }} - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-8">
+        <nav class="mb-8">
+            <ol class="flex items-center gap-2 text-sm font-sans text-cedax-cream/40">
+                <li><a href="/" class="hover:text-cedax-secondary transition-colors">Inicio</a></li>
+                <li>/</li>
+                <li class="text-cedax-secondary">{{ titulo_pagina }}</li>
+            </ol>
+        </nav>
+        
+        <h1 class="font-display text-4xl text-white mb-4">{{ titulo_pagina }}</h1>
+        <p class="font-sans text-lg text-cedax-cream/70 mb-12">
+            Explora nuestros programas de formación odontológica
+        </p>
+        
+        <!-- Filtros -->
+        <div class="flex flex-wrap gap-3 mb-10">
+            <a href="/cursos" class="px-4 py-2 rounded-sm {% if not tipo_seleccionado %}bg-cedax-secondary text-white{% else %}glass-luxury text-cedax-cream hover:text-white{% endif %} transition-colors text-sm font-sans uppercase tracking-wider">
+                Todos
+            </a>
+            {% for tipo in tipos_disponibles %}
+            <a href="/cursos/{{ tipo.lower() }}" class="px-4 py-2 rounded-sm {% if tipo_seleccionado == tipo.lower() %}bg-cedax-secondary text-white{% else %}glass-luxury text-cedax-cream hover:text-white{% endif %} transition-colors text-sm font-sans uppercase tracking-wider">
+                {{ tipo }}
+            </a>
+            {% endfor %}
+        </div>
+        
+        {% if cursos %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for curso in cursos %}
+            <a href="/curso/{{ curso.slug }}" class="card-luxury group block rounded-lg overflow-hidden">
+                <div class="relative h-48">
+                    {% if curso.imagen_url %}
+                    <img src="{{ curso.imagen_url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                    {% else %}
+                    <div class="w-full h-full bg-gradient-to-br from-cedax-primary-light to-cedax-primary flex items-center justify-center">
+                        <span class="font-display text-5xl text-cedax-secondary/20">CDAX</span>
+                    </div>
+                    {% endif %}
+                    <div class="absolute inset-0 bg-gradient-to-t from-cedax-primary via-transparent to-transparent"></div>
+                    
+                    <div class="absolute top-3 left-3">
+                        <span class="badge-luxury">{{ curso.tipo_programa }}</span>
+                    </div>
+                    
+                    {% if curso.estado_inscripcion == 'INSCRIPCIONES_ABIERTAS' %}
+                    <div class="absolute top-3 right-3 status-open px-3 py-1 text-xs font-sans uppercase tracking-wider">
+                        Abiertas
+                    </div>
+                    {% elif curso.estado_inscripcion == 'PROXIMAMENTE' %}
+                    <div class="absolute top-3 right-3 status-closed px-3 py-1 text-xs font-sans uppercase tracking-wider">
+                        Próximamente
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="p-6">
+                    <h3 class="font-display text-xl text-white mb-2 group-hover:text-cedax-secondary transition-colors">
+                        {{ curso.titulo }}
+                    </h3>
+                    <p class="font-sans text-cedax-cream/60 text-sm mb-4 line-clamp-2">
+                        {{ curso.descripcion[:120] }}...
+                    </p>
+                    
+                    <div class="flex flex-wrap gap-4 text-xs font-sans text-cedax-cream/50">
+                        {% if curso.duracion_horas %}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            {{ curso.duracion_horas }} hrs
+                        </span>
+                        {% endif %}
+                        {% if curso.modalidad %}
+                        <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                            {{ curso.modalidad }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-4 pt-4 border-t border-cedax-secondary/20">
+                        <span class="font-display text-xl text-cedax-secondary">${{ curso.precio }}</span>
+                        <span class="text-sm text-cedax-cream/60 group-hover:text-cedax-secondary transition-colors">Ver programa →</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-20">
+            <p class="font-sans text-cedax-cream/50">No hay programas disponibles en esta categoría.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

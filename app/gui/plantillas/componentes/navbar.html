@@ -1,0 +1,59 @@
+<nav class="navbar-luxury fixed top-0 left-0 right-0 z-50">
+    <div class="max-w-7xl mx-auto px-8">
+        <div class="flex justify-between items-center h-20">
+            <!-- Logo -->
+            <div class="flex items-center gap-4">
+                <a href="/" class="flex items-center gap-3">
+                    <img src="/static/logo.jpg" alt="CDAX Academy" class="h-12 w-auto rounded-sm">
+                    <div>
+                        <span class="font-display text-xl font-bold text-gold-luxury tracking-wide">
+                            CDAX <span class="text-cedax-cream">Academy</span>
+                        </span>
+                        <p class="font-sans text-xs tracking-[0.3em] text-cedax-cream/50 uppercase">Centro Dental Avanzado Xalapa</p>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- Navegación -->
+            <div class="flex items-center gap-8">
+                <a href="/#cursos" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                    Programas
+                </a>
+                <a href="/profesorado" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                    Profesorado
+                </a>
+                <a href="/faq" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                    FAQ
+                </a>
+                
+                {% if usuario %}
+                    {% if usuario.rol.value == 'ADMIN' %}
+                    <a href="/admin/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                        Panel de Admin
+                    </a>
+                    {% elif usuario.rol.value == 'PROFESOR' %}
+                    <a href="/profesor/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                        Panel de Profesor
+                    </a>
+                    <a href="/aula/demo" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                        Ver Mi Aula
+                    </a>
+                    {% else %}
+                    <a href="/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                        Mi Aula
+                    </a>
+                    {% endif %}
+                    <a href="/auth/logout" class="font-sans text-sm text-cedax-cream/60 hover:text-cedax-secondary transition-all">
+                        Cerrar Sesión
+                    </a>
+                {% else %}
+                <a href="/login" class="btn-luxury px-6 py-2.5 text-xs rounded-sm hover:shadow-cedax-secondary/30 transition-all">
+                    Iniciar Sesión
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    <!-- Línea dorada sutil -->
+    <div class="h-px bg-gradient-to-r from-transparent via-cedax-secondary/40 to-transparent"></div>
+</nav>

@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block titulo %}Proceso de Admisión - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-32 pb-20">
+    <div class="max-w-4xl mx-auto px-8">
+        <nav class="mb-8">
+            <ol class="flex items-center gap-2 text-sm font-sans text-cedax-cream/40">
+                <li><a href="/" class="hover:text-cedax-secondary transition-colors">Inicio</a></li>
+                <li>/</li>
+                <li class="text-cedax-secondary">Admisión</li>
+            </ol>
+        </nav>
+        
+        <h1 class="font-display text-4xl text-white mb-4">Proceso de Admisión</h1>
+        <p class="font-sans text-lg text-cedax-cream/70 mb-12">
+            Únete a CDAX Academy y transforma tu carrera profesional
+        </p>
+        
+        <div class="glass-luxury p-8 rounded-lg mb-8">
+            <h2 class="font-display text-2xl text-white mb-6">Requisitos Generales</h2>
+            <ul class="space-y-4 text-cedax-cream/80">
+                <li class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-cedax-secondary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <strong class="text-white">Título profesional</strong>
+                        <p class="text-sm mt-1">Licenciatura en Odontología o área relacionada</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-cedax-secondary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <strong class="text-white">Cédula profesional</strong>
+                        <p class="text-sm mt-1">Cédula profesional de cirujano dental vigente</p>
+                    </div>
+                </li>
+                <li class="flex items-start gap-3">
+                    <svg class="w-6 h-6 text-cedax-secondary flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                    </svg>
+                    <div>
+                        <strong class="text-white">Identificación oficial</strong>
+                        <p class="text-sm mt-1">INE o pasaporte vigente</p>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        
+        <div class="glass-luxury p-8 rounded-lg mb-8">
+            <h2 class="font-display text-2xl text-white mb-6">Pasos para Inscribirte</h2>
+            <div class="space-y-6">
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary text-white font-display font-bold rounded-full flex-shrink-0">1</div>
+                    <div>
+                        <h3 class="font-display text-lg text-white">Elige tu programa</h3>
+                        <p class="text-sm text-cedax-cream/70 mt-1">Explora nuestros cursos y selecciona el que mejor se adapte a tus necesidades profesionales.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary text-white font-display font-bold rounded-full flex-shrink-0">2</div>
+                    <div>
+                        <h3 class="font-display text-lg text-white">Completa tu registro</h3>
+                        <p class="text-sm text-cedax-cream/70 mt-1">Crea una cuenta en nuestra plataforma y completa tu perfil profesional.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary text-white font-display font-bold rounded-full flex-shrink-0">3</div>
+                    <div>
+                        <h3 class="font-display text-lg text-white">Realiza el pago</h3>
+                        <p class="text-sm text-cedax-cream/70 mt-1">Confirma tu inscripción mediante nuestro sistema de pago seguro.</p>
+                    </div>
+                </div>
+                <div class="flex gap-4">
+                    <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary text-white font-display font-bold rounded-full flex-shrink-0">4</div>
+                    <div>
+                        <h3 class="font-display text-lg text-white">Accede al aula</h3>
+                        <p class="text-sm text-cedax-cream/70 mt-1">Una vez confirmado el pago, recibirás acceso inmediato a tu aula virtual.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-luxury p-8 rounded-lg">
+            <h2 class="font-display text-2xl text-white mb-4">¿Necesitas ayuda?</h2>
+            <p class="text-cedax-cream/70 mb-6">Nuestro equipo de admisiones está disponible para guiarte en todo el proceso.</p>
+            <a href="https://wa.me/5215530000000?text=Hola, me interesa información sobre el proceso de admisión" 
+               class="btn-luxury inline-block px-6 py-3 rounded-lg">
+                Contactar Admissions
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

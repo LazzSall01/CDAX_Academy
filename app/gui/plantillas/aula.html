@@ -1,0 +1,200 @@
+{% extends "base.html" %}
+
+{% block titulo %}Aula Virtual - {{ curso.titulo }} - CDAX Academy{% endblock %}
+
+{% block estilos %}
+<style>
+    .sidebar-item {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .sidebar-item:hover, .sidebar-item.active {
+        background: rgba(191,128,73,0.15);
+        border-right: 3px solid #BF8049;
+    }
+    
+    .video-player {
+        position: relative;
+        background: linear-gradient(135deg, #0D2230 0%, #123340 100%);
+        border: 2px solid rgba(191,128,73,0.3);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    
+    .video-player::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        border-radius: 10px;
+        padding: 2px;
+        background: linear-gradient(135deg, rgba(191,128,73,0.5), transparent);
+        -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+        -webkit-mask-composite: xor;
+        mask-composite: exclude;
+        pointer-events: none;
+    }
+    
+    .progress-bar {
+        background: linear-gradient(90deg, #BF8049 0%, #D4A06A 100%);
+    }
+    
+    .leccion-card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .leccion-card:hover {
+        transform: translateX(4px);
+    }
+    
+    .leccion-card.completada {
+        border-left: 3px solid #50C878;
+    }
+    
+    .leccion-card.actual {
+        border-left: 3px solid #BF8049;
+        background: rgba(191,128,73,0.1);
+    }
+    
+    .pulse-dot {
+        animation: pulse-dot 2s infinite;
+    }
+    
+    @keyframes pulse-dot {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(191,128,73, 0.4); }
+        50% { box-shadow: 0 0 0 8px rgba(191,128,73, 0); }
+    }
+    
+    .animate-in {
+        animation: animateIn 0.5s ease-out forwards;
+    }
+    
+    @keyframes animateIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .stagger-1 { animation-delay: 0.1s; }
+    .stagger-2 { animation-delay: 0.2s; }
+    .stagger-3 { animation-delay: 0.3s; }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-16 flex flex-col" style="height: 100vh; overflow: hidden;">
+    <!-- Navbar del aula -->
+    <nav class="bg-cedax-primary-dark border-b border-cedax-secondary/20 flex-shrink-0">
+        <div class="max-w-full mx-auto px-6">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center gap-4">
+                    <a href="/dashboard" class="flex items-center gap-3">
+                        <img src="/static/logo.jpg" alt="CDAX" class="h-8 w-auto rounded-sm">
+                        <span class="font-display text-lg font-bold text-cedax-cream">CDAX</span>
+                    </a>
+                    <span class="text-cedax-cream/30">|</span>
+                    <span class="font-sans text-sm text-cedax-cream/70 truncate max-w-xs">{{ curso.titulo }}</span>
+                </div>
+                <div class="flex items-center gap-4">
+                    <a href="/foro/{{ curso.slug }}" class="font-sans text-sm text-cedax-cream/70 hover:text-cedax-secondary transition-colors">
+                        Foro
+                    </a>
+                    <span class="text-cedax-cream/30">|</span>
+                    <form action="/auth/logout" method="POST">
+                        <button type="submit" class="font-sans text-sm text-cedax-accent hover:text-cedax-accent-light transition-colors">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="flex flex-1 overflow-hidden">
+        <!-- Sidebar con Lecciones -->
+        <aside class="w-80 bg-cedax-primary border-r border-cedax-secondary/10 overflow-y-auto flex-shrink-0">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="font-display text-lg font-bold text-white">Contenido</h2>
+                    <span class="text-xs text-cedax-cream/50">{{ modulos|length }} módulos</span>
+                </div>
+                
+                {% for modulo in modulos %}
+                <div class="mb-6 animate-in" style="animation-delay: {{ loop.index0 * 0.1 }}s">
+                    <div class="flex items-center gap-2 mb-3 px-3 py-2 bg-cedax-primary-light rounded-lg">
+                        <span class="w-6 h-6 flex items-center justify-center bg-cedax-secondary text-white text-xs font-bold rounded-full">
+                            {{ modulo.orden }}
+                        </span>
+                        <span class="font-sans text-sm text-white font-medium">{{ modulo.titulo }}</span>
+                    </div>
+                    <div class="space-y-1 ml-3">
+                        {% for leccion in modulo.lecciones %}
+                        <a href="/aula/{{ curso.slug }}/leccion/{{ leccion.id }}" 
+                           class="leccion-card flex items-center gap-3 px-3 py-3 text-cedax-cream/70 hover:text-white rounded-r-sm sidebar-item"
+                           hx-get="/aula/{{ curso.slug }}/leccion/{{ leccion.id }}"
+                           hx-target="#contenido-leccion"
+                           hx-swap="innerHTML">
+                            <div class="relative flex-shrink-0">
+                                {% if leccion.estado_video == 'LISTO' %}
+                                <div class="w-8 h-8 flex items-center justify-center border border-cedax-secondary rounded-full">
+                                    <svg class="w-4 h-4 text-cedax-secondary" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                                    </svg>
+                                </div>
+                                {% elif leccion.estado_video == 'PROCESANDO' %}
+                                <div class="w-8 h-8 flex items-center justify-center border border-yellow-500 rounded-full pulse-dot">
+                                    <svg class="w-4 h-4 text-yellow-500 animate-spin" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                </div>
+                                {% else %}
+                                <div class="w-8 h-8 flex items-center justify-center border border-cedax-cream/30 rounded-full">
+                                    <svg class="w-4 h-4 text-cedax-cream/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="font-sans text-sm truncate">{{ leccion.titulo }}</div>
+                                <div class="font-sans text-xs text-cedax-cream/40">{{ leccion.duracion_minutos }} min</div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+        
+        <!-- Área de Contenido -->
+        <main class="flex-1 overflow-y-auto bg-gradient-to-br from-cedax-primary to-cedax-primary-light">
+            <div id="contenido-leccion" class="p-8">
+                <!-- Estado inicial -->
+                <div class="flex flex-col items-center justify-center h-full text-center animate-in">
+                    <div class="relative mb-8">
+                        <div class="w-32 h-32 flex items-center justify-center border-2 border-cedax-secondary/30 rounded-full">
+                            <svg class="w-16 h-16 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                            </svg>
+                        </div>
+                        <div class="absolute -bottom-2 -right-2 w-10 h-10 bg-cedax-secondary rounded-full flex items-center justify-center">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M6.3 2.841A1.5 1.5 0 004 4.11V15.89a1.5 1.5 0 002.3 1.269l9.344-5.89a1.5 1.5 0 000-2.538L6.3 2.84z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <h2 class="font-display text-3xl font-bold text-white mb-4">Aula Virtual CDAX</h2>
+                    <p class="font-sans text-xl text-cedax-cream/70 mb-8 max-w-md">Selecciona una lección del menú lateral para comenzar tu aprendizaje</p>
+                    <div class="flex items-center gap-2 text-sm text-cedax-cream/50">
+                        <span class="w-2 h-2 bg-cedax-secondary rounded-full"></span>
+                        <span>Sistema de aprendizaje moderno</span>
+                        <span class="w-2 h-2 bg-cedax-secondary rounded-full"></span>
+                        <span>Videos en HD</span>
+                        <span class="w-2 h-2 bg-cedax-secondary rounded-full"></span>
+                        <span>Materiales descargables</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+
+{% block titulo %}Dashboard - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark pt-32 pb-20">
+    <div class="max-w-7xl mx-auto px-8">
+        <!-- Header -->
+        <div class="mb-12">
+            <h1 class="font-display text-4xl text-cedax-cream mb-2">
+                Bienvenido, <span class="text-gold-luxury">{{ usuario.nombre }}</span>
+            </h1>
+            <p class="font-sans text-cedax-beige/70">Tu espacio de aprendizaje en CDAX Academy</p>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
+            <div class="glass-luxury p-6 rounded-lg">
+                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Cursos Activos</p>
+                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            </div>
+            <div class="glass-luxury p-6 rounded-lg">
+                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Lecciones Completadas</p>
+                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            </div>
+            <div class="glass-luxury p-6 rounded-lg">
+                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Horas de Estudio</p>
+                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            </div>
+            <div class="glass-luxury p-6 rounded-lg">
+                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Certificados</p>
+                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            </div>
+        </div>
+        
+        <!-- Cursos Disponibles -->
+        <div class="mb-12">
+            <h2 class="font-display text-2xl text-cedax-cream mb-6">Explorar Programas</h2>
+            {% if cursos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for curso in cursos %}
+                <div class="card-luxury rounded-lg overflow-hidden group">
+                    <div class="relative h-40 overflow-hidden">
+                        {% if curso.imagen_url %}
+                        <img src="{{ curso.imagen_url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                        {% else %}
+                        <div class="w-full h-full bg-gradient-to-br from-cedax-primary-light to-cedax-primary flex items-center justify-center">
+                            <span class="font-display text-5xl text-cedax-secondary/30">CDAX</span>
+                        </div>
+                        {% endif %}
+                        <div class="absolute inset-0 bg-gradient-to-t from-cedax-primary-dark via-transparent to-transparent"></div>
+                        {% if curso.tipo_programa %}
+                        <div class="absolute top-3 left-3 badge-luxury text-xs">{{ curso.tipo_programa }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="p-5">
+                        <h3 class="font-display text-xl text-cedax-cream mb-2 group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
+                        <p class="font-sans text-sm text-cedax-beige/70 mb-4 line-clamp-2">{{ curso.descripcion[:100] }}...</p>
+                        <a href="/curso/{{ curso.slug }}" class="btn-luxury-outline w-full py-2 text-xs rounded-sm text-center block">
+                            Ver Programa
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="glass-luxury p-12 rounded-lg text-center">
+                <p class="font-sans text-cedax-beige/60">No hay programas disponibles actualmente.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

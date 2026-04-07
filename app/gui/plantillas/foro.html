@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block titulo %}Foro - {{ curso.titulo }} - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-32 pb-20">
+    <div class="max-w-4xl mx-auto px-8">
+        <nav class="mb-8">
+            <ol class="flex items-center gap-2 text-sm font-sans text-cedax-cream/40">
+                <li><a href="/" class="hover:text-cedax-secondary transition-colors">Inicio</a></li>
+                <li>/</li>
+                <li><a href="/aula/{{ curso.slug }}" class="hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</a></li>
+                <li>/</li>
+                <li class="text-cedax-secondary">Foro</li>
+            </ol>
+        </nav>
+        
+        <h1 class="font-display text-3xl text-white mb-8">Foro del Curso</h1>
+        
+        <div class="glass-luxury p-6 rounded-lg mb-8">
+            <h2 class="font-display text-lg text-white mb-4">Crear Nuevo Tema</h2>
+            <form hx-post="/foro/{{ curso.slug }}/tema" hx-target="#lista-temas" hx-swap="beforeend">
+                <div class="space-y-4">
+                    <input type="text" name="titulo" placeholder="Título del tema" required
+                           class="input-luxury w-full px-4 py-3 rounded-lg">
+                    <textarea name="contenido" placeholder="Escribe tu mensaje..." required rows="4"
+                              class="input-luxury w-full px-4 py-3 rounded-lg"></textarea>
+                    <button type="submit" class="btn-luxury px-6 py-3 rounded-lg font-semibold">
+                        Publicar Tema
+                    </button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="lista-temas" class="space-y-4">
+            {% for tema in temas %}
+            <div class="glass-luxury p-6 rounded-lg">
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-display text-lg text-white">{{ tema.titulo }}</h3>
+                        <p class="text-cedax-cream/70 mt-2">{{ tema.contenido }}</p>
+                        <div class="text-sm text-cedax-cream/40 mt-2">
+                            {{ tema.usuario.nombre }} - {{ tema.fecha_creacion.strftime('%Y-%m-%d') }}
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <a href="/foro/tema/{{ tema.id }}" class="text-cedax-secondary hover:text-cedax-secondary-light transition-colors">
+                        Ver respuestas
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            
+            {% if not temas %}
+            <p class="text-center text-cedax-cream/50 py-8">No hay temas todavía. ¡Sé el primero en publicar!</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

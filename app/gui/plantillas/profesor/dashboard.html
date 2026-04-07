@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+
+{% block titulo %}Panel del Profesor - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-24 pb-20">
+    <div class="max-w-7xl mx-auto px-8">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-10">
+            <div>
+                <h1 class="font-display text-4xl text-white mb-2">Mi Panel</h1>
+                <p class="font-sans text-cedax-cream/60">Gestiona tus cursos y contenido educativo</p>
+            </div>
+            <a href="/" class="btn-luxury px-6 py-3 rounded-lg">
+                Volver al Inicio
+            </a>
+        </div>
+        
+        <!-- Mis Cursos -->
+        <div class="mb-10">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Mis Cursos</h2>
+                <button onclick="document.getElementById('modal-crear-curso').classList.remove('hidden')" class="btn-luxury px-6 py-3 rounded-lg">
+                    + Nuevo Curso
+                </button>
+            </div>
+            
+            {% if mis_cursos %}
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {% for curso in mis_cursos %}
+                <div class="glass-luxury p-6 rounded-lg group hover:border-cedax-secondary/40 transition-all">
+                    <div class="flex items-start justify-between mb-4">
+                        <span class="badge-luxury">{{ curso.tipo_programa }}</span>
+                        <span class="px-3 py-1 text-xs font-sans uppercase tracking-wider rounded-sm 
+                            {% if curso.estado_inscripcion == 'INSCRIPCIONES_ABIERTAS' %}status-open
+                            {% elif curso.estado_inscripcion == 'PROXIMAMENTE' %}status-closed{% endif %}">
+                            {{ curso.estado_inscripcion }}
+                        </span>
+                    </div>
+                    <h3 class="font-display text-xl text-white mb-2 group-hover:text-cedax-secondary transition-colors">
+                        {{ curso.titulo }}
+                    </h3>
+                    <p class="font-sans text-cedax-cream/60 text-sm mb-4 line-clamp-2">
+                        {{ curso.descripcion[:100] if curso.descripcion else 'Sin descripción' }}...
+                    </p>
+                    <div class="flex items-center justify-between pt-4 border-t border-cedax-secondary/20">
+                        <span class="font-display text-xl text-cedax-secondary">${{ curso.precio }}</span>
+                        <a href="/profesor/curso/{{ curso.id }}" class="text-sm text-cedax-cream/60 hover:text-cedax-secondary transition-colors">
+                            Editar →
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="glass-luxury p-12 rounded-lg text-center">
+                <div class="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-cedax-secondary/10 rounded-full">
+                    <svg class="w-10 h-10 text-cedax-secondary/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                    </svg>
+                </div>
+                <h3 class="font-display text-xl text-white mb-2">No tienes cursos todavía</h3>
+                <p class="font-sans text-cedax-cream/60 mb-6">Crea tu primer curso para comenzar a impartir formación</p>
+                <button onclick="document.getElementById('modal-crear-curso').classList.remove('hidden')" class="btn-luxury px-6 py-3 rounded-lg">
+                    Crear Mi Primer Curso
+                </button>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- quick actions -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <a href="/profesorado" class="glass-luxury p-6 rounded-lg hover:border-cedax-secondary/40 transition-all">
+                <h3 class="font-display text-lg text-white mb-2">Ver Profesorado</h3>
+                <p class="font-sans text-sm text-cedax-cream/60">Explora el cuerpo docente</p>
+            </a>
+            <a href="/faq" class="glass-luxury p-6 rounded-lg hover:border-cedax-secondary/40 transition-all">
+                <h3 class="font-display text-lg text-white mb-2">Preguntas Frecuentes</h3>
+                <p class="font-sans text-sm text-cedax-cream/60">Consulta información útil</p>
+            </a>
+            <a href="/contacto" class="glass-luxury p-6 rounded-lg hover:border-cedax-secondary/40 transition-all">
+                <h3 class="font-display text-lg text-white mb-2">Soporte</h3>
+                <p class="font-sans text-sm text-cedax-cream/60">Contacta al equipo de CDAX</p>
+            </a>
+        </div>
+    </div>
+    
+    <!-- Modal Crear Curso -->
+    <div id="modal-crear-curso" class="hidden fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="glass-luxury-dark p-8 rounded-lg max-w-lg w-full">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="font-display text-2xl text-white">Nuevo Curso</h3>
+                <button onclick="document.getElementById('modal-crear-curso').classList.add('hidden')" class="text-cedax-cream/60 hover:text-white">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-crear-curso" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Título del curso</label>
+                    <input type="text" name="titulo" required class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="Ej: Ortodoncia Avanzada">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Descripción</label>
+                    <textarea name="descripcion" rows="3" required class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="Descripción del curso..."></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Precio (MXN)</label>
+                        <input type="number" name="precio" required class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="5000">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Duración (horas)</label>
+                        <input type="number" name="duracion_horas" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="40">
+                    </div>
+                </div>
+                <button type="submit" class="btn-luxury w-full py-3 rounded-lg mt-6">
+                    Crear Curso
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% block scripts %}
+<script>
+document.getElementById('form-crear-curso').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const data = {
+        titulo: form.titulo.value,
+        descripcion: form.descripcion.value,
+        precio: parseInt(form.precio.value),
+        duracion_horas: form.duracion_horas.value ? parseInt(form.duracion_horas.value) : null,
+    };
+    
+    const response = await fetch('/api/profesor/cursos', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+    });
+    
+    const result = await response.json();
+    if (result.success) {
+        window.location.href = `/profesor/curso/${result.curso_id}`;
+    } else {
+        alert('Error al crear curso: ' + result.detail);
+    }
+});
+</script>
+{% endblock %}
+{% endblock %}

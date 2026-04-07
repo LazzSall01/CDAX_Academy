@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block titulo %}Contacto - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pt-32 pb-20">
+    <div class="max-w-4xl mx-auto px-8">
+        <nav class="mb-8">
+            <ol class="flex items-center gap-2 text-sm font-sans text-cedax-cream/40">
+                <li><a href="/" class="hover:text-cedax-secondary transition-colors">Inicio</a></li>
+                <li>/</li>
+                <li class="text-cedax-secondary">Contacto</li>
+            </ol>
+        </nav>
+        
+        <h1 class="font-display text-4xl text-white mb-4">Contacto</h1>
+        <p class="font-sans text-lg text-cedax-cream/70 mb-12">
+            Estamos aquí para responder tus preguntas
+        </p>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="glass-luxury p-8 rounded-lg">
+                <h2 class="font-display text-xl text-white mb-6">Envíanos un mensaje</h2>
+                <form>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Nombre completo</label>
+                            <input type="text" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="Tu nombre">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Correo electrónico</label>
+                            <input type="email" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="tu@email.com">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Teléfono</label>
+                            <input type="tel" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="+52 55 1234 5678">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Mensaje</label>
+                            <textarea rows="4" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="¿En qué podemos ayudarte?"></textarea>
+                        </div>
+                        <button type="submit" class="btn-luxury w-full py-3 rounded-lg">
+                            Enviar Mensaje
+                        </button>
+                    </div>
+                </form>
+            </div>
+            
+            <div class="space-y-6">
+                <div class="glass-luxury p-8 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Información de contacto</h2>
+                    <div class="space-y-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary/20 rounded-lg">
+                                <svg class="w-5 h-5 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-cedax-cream/40 uppercase tracking-wider">Dirección</p>
+                                <p class="text-cedax-cream">{{ config.DIRECCION_CDAX }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary/20 rounded-lg">
+                                <svg class="w-5 h-5 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-cedax-cream/40 uppercase tracking-wider">Email</p>
+                                <p class="text-cedax-cream">{{ config.EMAIL_CDAX }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 flex items-center justify-center bg-cedax-secondary/20 rounded-lg">
+                                <svg class="w-5 h-5 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                            </div>
+                            <div>
+                                <p class="text-sm text-cedax-cream/40 uppercase tracking-wider">Horario</p>
+                                <p class="text-cedax-cream">{{ config.HORARIO_ATENCION }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="glass-luxury p-8 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">WhatsApp</h2>
+                    <p class="text-cedax-cream/70 mb-4">Chatea con nosotros directamente</p>
+                    <a href="{{ config.whatsapp_link }}?text={{ config.WHATSAPP_MENSAJE_DEFAULT }}" 
+                       class="btn-luxury w-full py-3 rounded-lg text-center block">
+                        Abrir WhatsApp
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

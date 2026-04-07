@@ -1,0 +1,129 @@
+# ============================================
+# Python
+# ============================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# ============================================
+# Virtual Environment
+# ============================================
+.venv/
+venv/
+ENV/
+env/
+.virtualenv/
+
+# ============================================
+# IDE
+# ============================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# ============================================
+# Base de datos
+# ============================================
+*.db
+*.sqlite
+*.sqlite3
+dental_academia.db
+
+# ============================================
+# Configuración local (NO incluir en git)
+# ============================================
+.env
+!.env.example
+.env.local
+.env.*.local
+
+# ============================================
+# Logs
+# ============================================
+*.log
+logs/
+
+# ============================================
+# Cache
+# ============================================
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+*.cache
+
+# ============================================
+# Testing
+# ============================================
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# ============================================
+# Archivos temporales
+# ============================================
+*.tmp
+temp/
+tmp/
+
+# ============================================
+# Cookies y archivos de prueba
+# ============================================
+cookies.txt
+headers.txt
+server.log
+c.txt
+nul
+
+# ============================================
+# Archivos de IA (no versionar)
+# ============================================
+*.md
+!README.md
+
+# ============================================
+# Cookies y archivos de prueba
+# ============================================
+cookies.txt
+cookies2.txt
+cookies3.txt
+cookies_alumno.txt
+cookies_demo.txt
+cookies_prof.txt
+headers.txt
+server.log
+c.txt
+nul
+
+# ============================================
+# Archivos de IA (no versionar)
+# ============================================
+*.md
+!README.md
+
+# ============================================
+# opencode.json (configuración local de IA)
+# ============================================
+opencode.json
+
