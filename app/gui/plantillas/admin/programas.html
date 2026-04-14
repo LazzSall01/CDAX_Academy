@@ -1,0 +1,161 @@
+{% extends "base.html" %}
+
+{% block titulo %}Programas - Panel Admin - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pb-20">
+    {% include "componentes/sidebar_admin.html" %}
+    
+    <main class="ml-72 pb-20 px-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="font-display text-2xl text-white mb-1">Programas</h1>
+                <p class="font-sans text-sm text-cedax-cream/60">Gestionar programas del sistema</p>
+            </div>
+            <button onclick="document.getElementById('modal-crear').classList.remove('hidden')" class="btn-luxury px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Programa
+            </button>
+        </div>
+        
+        <!-- Buscador -->
+        <div class="glass-luxury p-3 rounded-lg mb-4 w-1/2">
+            <div class="relative">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cedax-cream/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" id="buscador" placeholder="Buscar programas..." class="input-luxury w-full pl-10 py-2 rounded-lg text-sm">
+            </div>
+        </div>
+        
+        <!-- Lista de Cursos como Widgets Horizontales -->
+        <div class="space-y-4" id="cursos-lista">
+            {% for c in lista_cursos %}
+            <div onclick="window.location.href='/admin/curso/{{ c.id }}'" class="glass-luxury rounded-lg p-4 cursor-pointer hover:border-cedax-secondary/40 transition-all duration-300 group">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-cedax-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-8 h-8 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="badge-luxury text-xs">{{ c.tipo }}</span>
+                            {% if c.activo %}
+                            <button onclick="event.stopPropagation(); toggleCurso({{ c.id }})" class="relative inline-flex h-5 w-9 items-center rounded-full bg-green-500 transition-colors">
+                                <span class="translate-x-4 inline-block h-3 w-3 transform rounded-full bg-white transition-transform"></span>
+                            </button>
+                            {% else %}
+                            <button onclick="event.stopPropagation(); toggleCurso({{ c.id }})" class="relative inline-flex h-5 w-9 items-center rounded-full bg-gray-500 transition-colors">
+                                <span class="translate-x-1 inline-block h-3 w-3 transform rounded-full bg-white transition-transform"></span>
+                            </button>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-display text-lg text-white truncate group-hover:text-cedax-secondary transition-colors">{{ c.titulo }}</h3>
+                        <p class="text-sm text-cedax-cream/50 truncate">{{ c.descripcion[:80] if c.descripcion else 'Sin descripción' }}</p>
+                    </div>
+                    <div class="flex items-center gap-6 text-sm text-cedax-cream/60 flex-shrink-0">
+                        <div class="text-center">
+                            <span class="block font-display text-lg text-white">{{ c.modulos }}</span>
+                            <span class="text-xs">Módulos</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="block font-display text-lg text-white">{{ c.lecciones }}</span>
+                            <span class="text-xs">Lecciones</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="font-display text-xl text-cedax-secondary">${{ c.precio }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    
+    <!-- Modal Crear Programa -->
+    <div id="modal-crear" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="glass-luxury p-8 rounded-xl w-full max-w-lg animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Nuevo Programa</h2>
+                <button onclick="document.getElementById('modal-crear').classList.add('hidden')" class="p-2 hover:bg-cedax-secondary/20 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-cedax-cream/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-crear-programa" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Título</label>
+                    <input type="text" name="titulo" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Descripción</label>
+                    <textarea name="descripcion" rows="3" class="input-luxury w-full px-4 py-3 rounded-lg"></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Precio</label>
+                    <input type="number" name="precio" value="0" class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Tipo</label>
+                    <select name="tipo_programa" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans appearance-none cursor-pointer">
+                        <option value="CURSO" class="bg-cedax-primary-dark">Curso</option>
+                        <option value="DIPLOMADO" class="bg-cedax-primary-dark">Diplomado</option>
+                        <option value="ESPECIALIDAD" class="bg-cedax-primary-dark">Especialidad</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-luxury w-full py-3 rounded-lg">Crear Programa</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('buscador').addEventListener('input', function(e) {
+    const busqueda = e.target.value.toLowerCase();
+    const filas = document.querySelectorAll('#tabla-cursos tr');
+    filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(busqueda) ? '' : 'none';
+    });
+});
+
+document.getElementById('form-crear-programa').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    try {
+        const response = await fetch('/api/admin/cursos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(Object.fromEntries(formData))
+        });
+        if (response.ok) location.reload();
+    } catch (err) {
+        console.error('Error:', err);
+    }
+});
+
+async function toggleCurso(id) {
+    try {
+        const response = await fetch(`/api/admin/cursos/${id}/toggle`, {method: 'POST'});
+        if (response.ok) location.reload();
+    } catch (err) {
+        console.error('Error:', err);
+    }
+}
+
+async function eliminarCurso(id) {
+    if (confirm('¿Eliminar este programa?')) {
+        try {
+            const response = await fetch(`/api/admin/cursos/${id}`, {method: 'DELETE'});
+            if (response.ok) location.reload();
+        } catch (err) {
+            console.error('Error:', err);
+        }
+    }
+}
+</script>
+{% endblock %}

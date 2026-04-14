@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block titulo %}Cursos - Panel de Coordinación - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary flex">
+    <!-- Sidebar -->
+    <aside class="w-72 fixed left-0 top-0 h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark border-r border-cedax-secondary/10 z-40">
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/static/logo.jpg" alt="CDAX" class="h-10 w-auto rounded-sm">
+                <div>
+                    <span class="font-display text-lg font-bold text-gold-luxury">CDAX</span>
+                    <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider">Coordinación</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                    <span class="font-display text-sm text-cedax-secondary">{{ usuario.nombre[0] }}{{ usuario.apellido[0] }}</span>
+                </div>
+                <div>
+                    <p class="font-sans text-sm text-white">{{ usuario.nombre }} {{ usuario.apellido }}</p>
+                    <p class="font-sans text-xs text-cedax-cream/40">Coordinador</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-6 py-4 border-b border-cedax-secondary/10">
+            <p class="font-display text-sm text-cedax-secondary">Gestión de Cursos</p>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="/coordinador/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span class="font-sans text-sm">Dashboard</span>
+            </a>
+            
+            <a href="/coordinador/profesores" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <span class="font-sans text-sm">Profesores</span>
+            </a>
+            
+            <a href="/coordinador/alumnos" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="font-sans text-sm">Alumnos</span>
+            </a>
+            
+            <a href="/coordinador/cursos" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-cedax-secondary/20 text-cedax-secondary border border-cedax-secondary/30 group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="font-sans text-sm">Cursos</span>
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-cedax-secondary/10">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="font-sans text-sm">Volver al Inicio</span>
+                </a>
+                <a href="/auth/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-accent/60 hover:bg-cedax-accent/10 group transition-all duration-300">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span class="font-sans text-sm">Cerrar Sesión</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 ml-72 pb-20 px-8">
+        <div class="flex items-center justify-end mb-4">
+            <button onclick="document.getElementById('modal-crear-curso').classList.remove('hidden')" class="btn-luxury px-4 py-2 rounded-lg flex items-center gap-2 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                Nuevo Curso
+            </button>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="flex gap-2 mb-4">
+            <button onclick="filtrarCursos('todos')" class="px-3 py-1.5 rounded-lg bg-cedax-secondary/20 text-cedax-secondary border border-cedax-secondary/30 text-xs">Todos</button>
+            <button onclick="filtrarCursos('CURSO')" class="px-3 py-1.5 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 text-xs">Cursos</button>
+            <button onclick="filtrarCursos('DIPLOMADO')" class="px-3 py-1.5 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 text-xs">Diplomados</button>
+            <button onclick="filtrarCursos('ESPECIALIDAD')" class="px-3 py-1.5 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 text-xs">Especialidades</button>
+        </div>
+        
+        <!-- Lista de Cursos como Widgets Horizontales -->
+        <div class="space-y-4" id="cursos-lista">
+            {% for curso in cursos %}
+            <div onclick="window.location.href='/coordinador/curso/{{ curso.id }}'" class="glass-luxury rounded-lg p-4 cursor-pointer hover:border-cedax-secondary/40 transition-all duration-300 group" data-tipo="{{ curso.tipo_programa }}">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-cedax-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
+                        <svg class="w-8 h-8 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                        </svg>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="badge-luxury text-xs">{{ curso.tipo_programa }}</span>
+                            {% if curso.activo %}
+                            <span class="px-2 py-0.5 bg-green-500/20 text-green-500 text-xs rounded-full">Activo</span>
+                            {% else %}
+                            <span class="px-2 py-0.5 bg-red-500/20 text-red-500 text-xs rounded-full">Inactivo</span>
+                            {% endif %}
+                        </div>
+                        <h3 class="font-display text-lg text-white truncate group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
+                        <p class="text-sm text-cedax-cream/50 truncate">{{ curso.descripcion[:80] if curso.descripcion else 'Sin descripción' }}</p>
+                    </div>
+                    <div class="flex items-center gap-6 text-sm text-cedax-cream/60 flex-shrink-0">
+                        <div class="text-center">
+                            <span class="block font-display text-lg text-white">{{ curso.modulos }}</span>
+                            <span class="text-xs">Módulos</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="block font-display text-lg text-white">{{ curso.lecciones }}</span>
+                            <span class="text-xs">Lecciones</span>
+                        </div>
+                        <div class="text-center">
+                            <span class="block font-display text-lg text-white">{{ curso.alumnos }}</span>
+                            <span class="text-xs">Alumnos</span>
+                        </div>
+                    </div>
+                    <div class="flex-shrink-0">
+                        <span class="font-display text-xl text-cedax-secondary">${{ curso.precio }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+    
+    <!-- Modal Crear Curso -->
+    <div id="modal-crear-curso" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="glass-luxury p-8 rounded-xl w-full max-w-lg animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Nuevo Curso</h2>
+                <button onclick="document.getElementById('modal-crear-curso').classList.add('hidden')" class="p-2 hover:bg-cedax-secondary/20 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-cedax-cream/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-crear-curso" class="space-y-4">
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Título</label>
+                    <input type="text" name="titulo" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Descripción</label>
+                    <textarea name="descripcion" rows="3" class="input-luxury w-full px-4 py-3 rounded-lg"></textarea>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Precio</label>
+                        <input type="number" name="precio" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Duración (horas)</label>
+                        <input type="number" name="duracion_horas" class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Modalidad</label>
+                    <select name="modalidad" class="input-luxury w-full px-4 py-3 rounded-lg">
+                        <option value="EN_LINEA">En línea</option>
+                        <option value="PRESENCIAL">Presencial</option>
+                        <option value="HIBRIDO">Híbrido</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-luxury w-full py-3 rounded-lg">Crear Curso</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function filtrarCursos(tipo) {
+    const cursos = document.querySelectorAll('#cursos-grid > div');
+    cursos.forEach(curso => {
+        if (tipo === 'todos' || curso.dataset.tipo === tipo) {
+            curso.style.display = '';
+        } else {
+            curso.style.display = 'none';
+        }
+    });
+}
+
+document.getElementById('form-crear-curso').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const data = Object.fromEntries(formData);
+    data.precio = parseInt(data.precio);
+    data.duracion_horas = data.duracion_horas ? parseInt(data.duracion_horas) : null;
+    data.incluye_diploma = true;
+    data.incluye_materiales = true;
+    
+    try {
+        const response = await fetch('/api/coordinador/cursos', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const error = await response.json();
+            console.error(error.detail || 'Error al crear curso');
+        }
+    } catch (err) {
+        console.error('Error de conexión');
+    }
+});
+
+function verCurso(id) {
+    window.location.href = '/curso/' + id;
+}
+
+function editarCurso(id) {
+    window.location.href = '/coordinador/curso/' + id;
+}
+</script>
+{% endblock %}

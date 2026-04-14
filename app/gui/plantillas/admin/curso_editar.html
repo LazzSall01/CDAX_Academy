@@ -1,0 +1,259 @@
+{% extends "base.html" %}
+
+{% block titulo %}Editar Programa - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pb-20">
+    {% include "componentes/sidebar_admin.html" %}
+    
+    <main class="ml-72 pb-20 px-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <a href="/admin/programas" class="font-sans text-cedax-cream/40 text-sm hover:text-cedax-secondary">← Volver a Programas</a>
+                <h1 class="font-display text-2xl text-white mt-1">Editar: {{ curso.titulo }}</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                {% if curso.activo %}
+                <span class="px-3 py-1 bg-green-500/20 text-green-500 rounded-full text-sm">Activo</span>
+                {% else %}
+                <span class="px-3 py-1 bg-red-500/20 text-red-500 rounded-full text-sm">Inactivo</span>
+                {% endif %}
+                <button onclick="guardarCurso()" class="btn-luxury px-4 py-2 rounded-lg">Guardar Cambios</button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Columna Izquierda: Datos del Curso -->
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Datos del Programa</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Título</label>
+                            <input type="text" id="titulo" value="{{ curso.titulo }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Descripción Corta</label>
+                            <textarea id="descripcion" rows="3" class="input-luxury w-full px-4 py-3 rounded-lg">{{ curso.descripcion or '' }}</textarea>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Descripción Larga</label>
+                            <textarea id="descripcion_larga" rows="6" class="input-luxury w-full px-4 py-3 rounded-lg">{{ curso.descripcion_larga or '' }}</textarea>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Precio ($)</label>
+                                <input type="number" id="precio" value="{{ curso.precio }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Tipo</label>
+                                <select id="tipo_programa" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
+                                    <option value="CURSO" {% if curso.tipo_programa == 'CURSO' %}selected{% endif %}>Curso</option>
+                                    <option value="DIPLOMADO" {% if curso.tipo_programa == 'DIPLOMADO' %}selected{% endif %}>Diplomado</option>
+                                    <option value="ESPECIALIDAD" {% if curso.tipo_programa == 'ESPECIALIDAD' %}selected{% endif %}>Especialidad</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">URL de Imagen</label>
+                            <input type="text" id="imagen_url" value="{{ curso.imagen_url or '' }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Configuración</h2>
+                    <div class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Fecha Inicio</label>
+                                <input type="date" id="fecha_inicio" value="{{ curso.fecha_inicio or '' }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Fecha Fin Inscripción</label>
+                                <input type="date" id="fecha_fin_inscripcion" value="{{ curso.fecha_fin_inscripcion or '' }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Estado Inscripción</label>
+                                <select id="estado_inscripcion" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
+                                    <option value="PROXIMAMENTE" {% if curso.estado_inscripcion == 'PROXIMAMENTE' %}selected{% endif %}>Próximamente</option>
+                                    <option value="INSCRIPCIONES_ABIERTAS" {% if curso.estado_inscripcion == 'INSCRIPCIONES_ABIERTAS' %}selected{% endif %}>Inscripciones Abiertas</option>
+                                    <option value="CUPO_LIMITADO" {% if curso.estado_inscripcion == 'CUPO_LIMITADO' %}selected{% endif %}>Cupo Limitado</option>
+                                    <option value="AGOTADO" {% if curso.estado_inscripcion == 'AGOTADO' %}selected{% endif %}>Agotado</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Modalidad</label>
+                                <select id="modalidad" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
+                                    <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>En Línea</option>
+                                    <option value="PRESENCIAL" {% if curso.modalidad == 'PRESENCIAL' %}selected{% endif %}>Presencial</option>
+                                    <option value="HIBRIDO" {% if curso.modalidad == 'HIBRIDO' %}selected{% endif %}>Híbrido</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-3 gap-4">
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Duración (horas)</label>
+                                <input type="number" id="duracion_horas" value="{{ curso.duracion_horas or 0 }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">Capacidad Máxima</label>
+                                <input type="number" id="capacidad_maxima" value="{{ curso.capacidad_maxima or 30 }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-sm text-cedax-cream/60 mb-2">WhatsApp</label>
+                                <input type="text" id="whatsapp_contacto" value="{{ curso.whatsapp_contacto or '' }}" placeholder="+1234567890" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            </div>
+                        </div>
+                        <div class="flex gap-4">
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" id="incluye_diploma" {% if curso.incluye_diploma %}checked{% endif %} class="w-4 h-4">
+                                <span class="text-cedax-cream">Incluye Diploma</span>
+                            </label>
+                            <label class="flex items-center gap-2">
+                                <input type="checkbox" id="incluye_materiales" {% if curso.incluye_materiales %}checked{% endif %} class="w-4 h-4">
+                                <span class="text-cedax-cream">Incluye Materiales</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Módulos y Lecciones</h2>
+                    <div id="modulos-container" class="space-y-4">
+                        {% for m in modulos %}
+                        <div class="border border-cedax-secondary/20 rounded-lg p-4" data-modulo-id="{{ m.id }}">
+                            <div class="flex items-center justify-between mb-3">
+                                <input type="text" value="{{ m.titulo }}" class="bg-transparent text-white font-display text-lg w-full" placeholder="Título del módulo">
+                                <span class="text-cedax-cream/40 text-sm">{{ m.orden }}</span>
+                            </div>
+                            <div class="pl-4 space-y-2">
+                                {% for l in m.lecciones %}
+                                <div class="flex items-center gap-2 text-sm">
+                                    <svg class="w-4 h-4 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.133a1 1 0 000-1.664z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                    </svg>
+                                    <span class="text-cedax-cream">{{ l.titulo }}</span>
+                                    {% if l.video_url %}
+                                    <span class="text-green-500 text-xs">✓ Video</span>
+                                    {% else %}
+                                    <span class="text-gray-500 text-xs">Sin video</span>
+                                    {% endif %}
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button onclick="agregarModulo()" class="mt-4 text-sm text-cedax-secondary hover:text-cedax-secondary/80">+ Agregar Módulo</button>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Estado y Acciones -->
+            <div class="space-y-6">
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Estado</h2>
+                    <button onclick="toggleActivo()" id="btn-toggle" class="w-full py-3 rounded-lg {% if curso.activo %}bg-green-500 text-white{% else %}bg-red-500 text-white{% endif %}">
+                        {% if curso.activo %}Desactivar Programa{% else %}Activar Programa{% endif %}
+                    </button>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Instructores Asignados</h2>
+                    <div id="instructores-list" class="space-y-2 mb-4">
+                        {% for inst in instructores %}
+                        <div class="flex items-center justify-between bg-cedax-primary-dark p-2 rounded-lg">
+                            <span class="text-cedax-cream text-sm">{{ inst.nombre }}</span>
+                            <button onclick="removerInstructor({{ inst.id }})" class="text-red-500 hover:text-red-400">×</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <select id="nuevo-instructor" class="w-full px-4 py-2 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream text-sm mb-2">
+                        <option value="">Seleccionar instructor...</option>
+                        {% for u in todos_instructores %}
+                        <option value="{{ u.id }}">{{ u.nombre }} ({{ u.email }})</option>
+                        {% endfor %}
+                    </select>
+                    <button onclick="asignarInstructor()" class="w-full py-2 rounded-lg bg-cedax-secondary/20 text-cedax-secondary text-sm">Asignar Instructor</button>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Acciones</h2>
+                    <div class="space-y-2">
+                        <a href="/curso/{{ curso.id }}" class="block text-center py-2 rounded-lg bg-cedax-secondary/20 text-cedax-secondary text-sm">Ver en Público</a>
+                        <button onclick="eliminarPrograma()" class="w-full py-2 rounded-lg bg-cedax-accent/20 text-cedax-accent text-sm">Eliminar Programa</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const cursoId = {{ curso.id }};
+
+async function guardarCurso() {
+    const datos = {
+        titulo: document.getElementById('titulo').value,
+        descripcion: document.getElementById('descripcion').value,
+        descripcion_larga: document.getElementById('descripcion_larga').value,
+        precio: parseInt(document.getElementById('precio').value),
+        tipo_programa: document.getElementById('tipo_programa').value,
+        imagen_url: document.getElementById('imagen_url').value,
+        fecha_inicio: document.getElementById('fecha_inicio').value || null,
+        fecha_fin_inscripcion: document.getElementById('fecha_fin_inscripcion').value || null,
+        estado_inscripcion: document.getElementById('estado_inscripcion').value,
+        modalidad: document.getElementById('modalidad').value,
+        duracion_horas: parseInt(document.getElementById('duracion_horas').value) || 0,
+        capacidad_maxima: parseInt(document.getElementById('capacidad_maxima').value) || 30,
+        whatsapp_contacto: document.getElementById('whatsapp_contacto').value || null,
+        incluye_diploma: document.getElementById('incluye_diploma').checked,
+        incluye_materiales: document.getElementById('incluye_materiales').checked,
+    };
+    
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
+        if (response.ok) {
+            alert('Cambios guardados');
+            location.reload();
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function toggleActivo() {
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/toggle`, {method: 'POST'});
+        if (response.ok) location.reload();
+    } catch (err) {}
+}
+
+async function asignarInstructor() {
+    const instructorId = document.getElementById('nuevo-instructor').value;
+    if (!instructorId) return;
+    alert('Funcionalidad de asignar instructor - en desarrollo');
+}
+
+function removerInstructor(id) {
+    alert('Funcionalidad de remover instructor - en desarrollo');
+}
+
+function agregarModulo() {
+    alert('Funcionalidad de agregar módulo - en desarrollo');
+}
+
+function eliminarPrograma() {
+    if (confirm('¿Eliminar este programa? Esta acción no se puede deshacer.')) {
+        alert('Funcionalidad de eliminar programa - en desarrollo');
+    }
+}
+</script>
+{% endblock %}

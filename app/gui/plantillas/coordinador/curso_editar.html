@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+
+{% block titulo %}Editar Programa - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary flex">
+    <aside class="w-72 fixed left-0 top-0 h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark border-r border-cedax-secondary/10 z-40">
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/static/logo.jpg" alt="CDAX" class="h-10 w-auto rounded-sm">
+                <div>
+                    <span class="font-display text-lg font-bold text-gold-luxury">CDAX</span>
+                    <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider">Coordinación</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                    <span class="font-display text-sm text-cedax-secondary">{{ usuario.nombre[0] }}{{ usuario.apellido[0] }}</span>
+                </div>
+                <div>
+                    <p class="font-sans text-sm text-white">{{ usuario.nombre }} {{ usuario.apellido }}</p>
+                    <p class="font-sans text-xs text-cedax-cream/40">Coordinador</p>
+                </div>
+            </div>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="/coordinador/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+                <span class="font-sans text-sm">Dashboard</span>
+            </a>
+            
+            <a href="/coordinador/profesores" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span class="font-sans text-sm">Profesores</span>
+            </a>
+            
+            <a href="/coordinador/alumnos" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span class="font-sans text-sm">Alumnos</span>
+            </a>
+            
+            <a href="/coordinador/cursos" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-cedax-secondary/20 text-cedax-secondary border border-cedax-secondary/30 group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                <span class="font-sans text-sm">Cursos</span>
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-cedax-secondary/10">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                    <span class="font-sans text-sm">Volver al Inicio</span>
+                </a>
+                <a href="/auth/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-accent/60 hover:bg-cedax-accent/10 group transition-all duration-300">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                    <span class="font-sans text-sm">Cerrar Sesión</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 ml-72 pb-20 px-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <a href="/coordinador/cursos" class="font-sans text-cedax-cream/40 text-sm hover:text-cedax-secondary">← Volver a Cursos</a>
+                <h1 class="font-display text-2xl text-white mt-1">Editar: {{ curso.titulo }}</h1>
+            </div>
+            <button onclick="guardarCurso()" class="btn-luxury px-4 py-2 rounded-lg">Guardar Cambios</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div class="lg:col-span-2 space-y-6">
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Datos del Programa</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Título</label>
+                            <input type="text" id="titulo" value="{{ curso.titulo }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Descripción</label>
+                            <textarea id="descripcion" rows="4" class="input-luxury w-full px-4 py-3 rounded-lg">{{ curso.descripcion or '' }}</textarea>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Módulos y Lecciones</h2>
+                    <div id="modulos-container" class="space-y-4">
+                        {% for m in modulos %}
+                        <div class="border border-cedax-secondary/20 rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-3">
+                                <input type="text" value="{{ m.titulo }}" class="bg-transparent text-white font-display text-lg w-full" placeholder="Título del módulo">
+                                <span class="text-cedax-cream/40 text-sm">Orden: {{ m.orden }}</span>
+                            </div>
+                            <div class="pl-4 space-y-2">
+                                {% for l in m.lecciones %}
+                                <div class="flex items-center gap-3 bg-cedax-primary-dark/50 p-3 rounded-lg">
+                                    <div class="flex-1">
+                                        <span class="text-cedax-cream">{{ l.titulo }}</span>
+                                    </div>
+                                    <div class="flex items-center gap-2">
+                                        {% if l.bunny_video_id %}
+                                        <span class="px-2 py-1 bg-green-500/20 text-green-500 text-xs rounded">Bunny</span>
+                                        {% elif l.video_url %}
+                                        <span class="px-2 py-1 bg-blue-500/20 text-blue-500 text-xs rounded">Externo</span>
+                                        {% else %}
+                                        <span class="px-2 py-1 bg-gray-500/20 text-gray-500 text-xs rounded">Sin Video</span>
+                                        {% endif %}
+                                        <button onclick="subirVideo({{ l.id }})" class="text-cedax-secondary hover:text-cedax-secondary/80 text-sm">Subir Video</button>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            <button onclick="agregarLeccion({{ m.id }})" class="mt-2 text-sm text-cedax-secondary hover:text-cedax-secondary/80">+ Agregar Lección</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <button onclick="agregarModulo()" class="mt-4 text-sm text-cedax-secondary hover:text-cedax-secondary/80">+ Agregar Módulo</button>
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Configuración</h2>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Modalidad</label>
+                            <select id="modalidad" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
+                                <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>En Línea</option>
+                                <option value="PRESENCIAL" {% if curso.modalidad == 'PRESENCIAL' %}selected{% endif %}>Presencial</option>
+                                <option value="HIBRIDO" {% if curso.modalidad == 'HIBRIDO' %}selected{% endif %}>Híbrido</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Duración (horas)</label>
+                            <input type="number" id="duracion_horas" value="{{ curso.duracion_horas or 0 }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Ayuda</h2>
+                    <p class="text-cedax-cream/60 text-sm">Sube videos usando Bunny Stream. Los videos se procesarán automáticamente.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+const cursoId = {{ curso.id }};
+
+async function guardarCurso() {
+    const datos = {
+        titulo: document.getElementById('titulo').value,
+        descripcion: document.getElementById('descripcion').value,
+        modalidad: document.getElementById('modalidad').value,
+        duracion_horas: parseInt(document.getElementById('duracion_horas').value) || 0,
+    };
+    
+    try {
+        const response = await fetch(`/api/coordinador/cursos/${cursoId}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
+        if (response.ok) {
+            alert('Cambios guardados');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+function agregarModulo() { alert('Agregar módulo - en desarrollo'); }
+function agregarLeccion(moduloId) { alert('Agregar lección - en desarrollo'); }
+
+function subirVideo(leccionId) {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'video/*';
+    input.onchange = (e) => {
+        const file = e.target.files[0];
+        if (file) alert(`Subiendo ${file.name}... (en desarrollo)`);
+    };
+    input.click();
+}
+</script>
+{% endblock %}
