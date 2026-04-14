@@ -16,7 +16,7 @@
             
             <!-- Navegación -->
             <div class="flex items-center gap-8">
-                <a href="/#cursos" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                <a href="/cursos" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
                     Programas
                 </a>
                 <a href="/profesorado" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
@@ -30,6 +30,10 @@
                     {% if usuario.rol.value == 'ADMIN' %}
                     <a href="/admin/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
                         Panel de Admin
+                    </a>
+                    {% elif usuario.rol.value == 'COORDINADOR' %}
+                    <a href="/coordinador/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">
+                        Panel de Coordinador
                     </a>
                     {% elif usuario.rol.value == 'PROFESOR' %}
                     <a href="/profesor/dashboard" class="link-luxury font-sans text-sm tracking-wide hover:text-cedax-secondary transition-all">

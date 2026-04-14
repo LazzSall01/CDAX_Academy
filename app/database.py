@@ -34,7 +34,7 @@ def iniciar_base_datos():
     logger.info("Creando tablas en base de datos")
     Base.metadata.create_all(bind=engine)
 
-    # Crear usuario admin si no existe
+    from app.modelos import Usuario, RolUsuario
     from app.servicios.auth_servicio import AuthServicio
 
     sesion = SessionLocal()

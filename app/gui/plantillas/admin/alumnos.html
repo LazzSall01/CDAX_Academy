@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block titulo %}Alumnos - Panel Admin - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pb-20">
+    {% include "componentes/sidebar_admin.html" %}
+    
+    <main class="ml-72 pb-20 px-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="font-display text-2xl text-white mb-1">Alumnos</h1>
+                <p class="font-sans text-sm text-cedax-cream/60">Todos los estudiantes registrados</p>
+            </div>
+            <div class="glass-luxury px-4 py-2 rounded-lg">
+                <span class="font-sans text-sm text-cedax-cream/60">Total: </span>
+                <span class="font-display text-xl text-cedax-secondary">{{ total_alumnos }}</span>
+            </div>
+        </div>
+        
+        <!-- Tabla -->
+        <div class="glass-luxury rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-cedax-primary/50 border-b border-cedax-secondary/20">
+                        <tr>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-cedax-secondary/10">
+                        {% for a in lista_alumnos %}
+                        <tr class="hover:bg-cedax-secondary/5 transition-colors duration-200">
+                            <td class="px-6 py-4">
+                                <span class="font-sans text-white">{{ a.nombre }} {{ a.apellido }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-sans text-cedax-cream/70">{{ a.email }}</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if a.activo %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">Activo</span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-500 text-sm">Inactivo</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+{% endblock %}

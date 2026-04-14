@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block titulo %}Suscripciones - Panel Admin - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary pb-20">
+    {% include "componentes/sidebar_admin.html" %}
+    
+    <main class="ml-72 pb-20 px-8">
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="font-display text-2xl text-white mb-1">Suscripciones</h1>
+                <p class="font-sans text-sm text-cedax-cream/60">Historial de compras de cursos</p>
+            </div>
+            <div class="glass-luxury px-4 py-2 rounded-lg">
+                <span class="font-sans text-sm text-cedax-cream/60">Total: </span>
+                <span class="font-display text-xl text-cedax-secondary">{{ suscripciones|length }}</span>
+            </div>
+        </div>
+        
+        <!-- Buscador -->
+        <div class="glass-luxury p-3 rounded-lg mb-4 w-1/2">
+            <div class="relative">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cedax-cream/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" id="buscador" placeholder="Buscar suscripciones..." class="input-luxury w-full pl-10 py-2 rounded-lg text-sm">
+            </div>
+        </div>
+        
+        <!-- Tabla -->
+        <div class="glass-luxury rounded-lg overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead class="bg-cedax-primary/50 border-b border-cedax-secondary/20">
+                        <tr>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Alumno</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Curso</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Precio</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Fecha</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-cedax-secondary/10" id="tabla-suscripciones">
+                        {% for suscripcion in suscripciones %}
+                        <tr class="hover:bg-cedax-secondary/5 transition-colors duration-200 group">
+                            <td class="px-6 py-4">
+                                {% if suscripcion.usuario_id in usuarios %}
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                                        <span class="font-display text-sm text-cedax-secondary">{{ usuarios[suscripcion.usuario_id].nombre[0] }}{{ usuarios[suscripcion.usuario_id].apellido[0] }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-sans text-white">{{ usuarios[suscripcion.usuario_id].nombre }} {{ usuarios[suscripcion.usuario_id].apellido }}</p>
+                                        <p class="font-sans text-cedax-cream/40 text-xs">{{ usuarios[suscripcion.usuario_id].email }}</p>
+                                    </div>
+                                </div>
+                                {% else %}
+                                <span class="font-sans text-cedax-cream/40">Usuario #{{ suscripcion.usuario_id }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if suscripcion.curso_id in cursos %}
+                                <p class="font-sans text-white">{{ cursos[suscripcion.curso_id].titulo }}</p>
+                                {% else %}
+                                <span class="font-sans text-cedax-cream/40">Curso #{{ suscripcion.curso_id }}</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if suscripcion.precio %}
+                                <span class="font-sans text-cedax-secondary">${{ suscripcion.precio }}</span>
+                                {% else %}
+                                <span class="font-sans text-green-500">Gratis</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if suscripcion.activo %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    Activa
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-500 text-sm">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    Cancelada
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="font-sans text-cedax-cream/70 text-sm">
+                                    {% if suscripcion.fecha_creacion %}
+                                    {{ suscripcion.fecha_creacion.strftime('%d/%m/%Y %H:%M') }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    {% if suscripcion.activo %}
+                                    <button onclick="cancelarSuscripcion({{ suscripcion.id }})" class="p-2 rounded-lg hover:bg-cedax-accent/20 text-cedax-cream/60 hover:text-cedax-accent transition-all duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                        </svg>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.getElementById('buscador').addEventListener('input', function(e) {
+    const busqueda = e.target.value.toLowerCase();
+    const filas = document.querySelectorAll('#tabla-suscripciones tr');
+    filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(busqueda) ? '' : 'none';
+    });
+});
+
+async function cancelarSuscripcion(id) {
+    if (confirm('¿Estás seguro de cancelar esta suscripción?')) {
+        try {
+            const response = await fetch(`/api/admin/suscripciones/${id}`, {method: 'DELETE'});
+            if (response.ok) location.reload();
+        } catch (err) {
+            console.error('Error al cancelar suscripción');
+        }
+    }
+}
+</script>
+{% endblock %}

@@ -33,8 +33,9 @@
         {% if cursos %}
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for curso in cursos %}
-            <a href="/curso/{{ curso.slug }}" class="card-luxury group block rounded-lg overflow-hidden">
-                <div class="relative h-48">
+            {% set destino = '/aula/' + curso.slug %}
+<div class="card-luxury group rounded-lg overflow-hidden cursor-pointer" onclick="window.location.href='/curso/{{ curso.slug }}'">
+                <div class="relative h-48 overflow-hidden">
                     {% if curso.imagen_url %}
                     <img src="{{ curso.imagen_url }}" alt="{{ curso.titulo }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
                     {% else %}
@@ -83,11 +84,21 @@
                     </div>
                     
                     <div class="flex items-center justify-between mt-4 pt-4 border-t border-cedax-secondary/20">
-                        <span class="font-display text-xl text-cedax-secondary">${{ curso.precio }}</span>
-                        <span class="text-sm text-cedax-cream/60 group-hover:text-cedax-secondary transition-colors">Ver programa →</span>
+                        <span class="font-display text-2xl text-cedax-secondary">${{ curso.precio }}</span>
+                        {% if usuario and usuario.rol == 'ALUMNO' %}
+                            {% if cursos_comprados_ids and curso.id in cursos_comprados_ids %}
+                            <span class="text-sm text-green-400">Ya comprando</span>
+                            {% else %}
+                            <button onclick="event.stopPropagation(); comprarCurso({{ curso.id }})" class="btn-luxury py-2 px-4 text-xs rounded-sm">
+                                Inscribirse
+                            </button>
+                            {% endif %}
+                        {% else %}
+                        <span class="text-sm text-cedax-cream/60 hover:text-cedax-secondary transition-colors">Ver programa →</span>
+                        {% endif %}
                     </div>
                 </div>
-            </a>
+            </div>
             {% endfor %}
         </div>
         {% else %}
@@ -97,4 +108,10 @@
         {% endif %}
     </div>
 </div>
+
+<script>
+async function comprarCurso(cursoId) {
+    window.location.href = `/api/cursos/${cursoId}/comprar`;
+}
+</script>
 {% endblock %}

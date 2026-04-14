@@ -3,10 +3,10 @@
 {% block titulo %}Dashboard - CDAX Academy{% endblock %}
 
 {% block contenido %}
-<div class="min-h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark pt-32 pb-20">
-    <div class="max-w-7xl mx-auto px-8">
+<div class="min-h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark pt-8 pb-12">
+    <div class="max-w-7xl mx-auto px-6">
         <!-- Header -->
-        <div class="mb-12">
+        <div class="mb-6">
             <h1 class="font-display text-4xl text-cedax-cream mb-2">
                 Bienvenido, <span class="text-gold-luxury">{{ usuario.nombre }}</span>
             </h1>
@@ -14,28 +14,28 @@
         </div>
         
         <!-- Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-            <div class="glass-luxury p-6 rounded-lg">
-                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Cursos Activos</p>
-                <p class="font-display text-3xl text-cedax-secondary">0</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+            <div class="glass-luxury p-3 rounded-lg text-center">
+                <p class="font-sans text-[10px] text-cedax-beige/50 uppercase tracking-wider mb-1">Cursos</p>
+                <p class="font-display text-xl text-cedax-secondary">{{ cursos|length }}</p>
             </div>
-            <div class="glass-luxury p-6 rounded-lg">
-                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Lecciones Completadas</p>
-                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            <div class="glass-luxury p-3 rounded-lg text-center">
+                <p class="font-sans text-[10px] text-cedax-beige/50 uppercase tracking-wider mb-1">Lecciones</p>
+                <p class="font-display text-xl text-cedax-secondary">0</p>
             </div>
-            <div class="glass-luxury p-6 rounded-lg">
-                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Horas de Estudio</p>
-                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            <div class="glass-luxury p-3 rounded-lg text-center">
+                <p class="font-sans text-[10px] text-cedax-beige/50 uppercase tracking-wider mb-1">Horas</p>
+                <p class="font-display text-xl text-cedax-secondary">0</p>
             </div>
-            <div class="glass-luxury p-6 rounded-lg">
-                <p class="font-sans text-xs text-cedax-beige/50 uppercase tracking-wider mb-2">Certificados</p>
-                <p class="font-display text-3xl text-cedax-secondary">0</p>
+            <div class="glass-luxury p-3 rounded-lg text-center">
+                <p class="font-sans text-[10px] text-cedax-beige/50 uppercase tracking-wider mb-1">Diplomas</p>
+                <p class="font-display text-xl text-cedax-secondary">0</p>
             </div>
         </div>
         
         <!-- Cursos Disponibles -->
         <div class="mb-12">
-            <h2 class="font-display text-2xl text-cedax-cream mb-6">Explorar Programas</h2>
+            <h2 class="font-display text-2xl text-cedax-cream mb-6">Mis Cursos</h2>
             {% if cursos %}
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for curso in cursos %}
@@ -53,12 +53,20 @@
                         <div class="absolute top-3 left-3 badge-luxury text-xs">{{ curso.tipo_programa }}</div>
                         {% endif %}
                     </div>
-                    <div class="p-5">
-                        <h3 class="font-display text-xl text-cedax-cream mb-2 group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
-                        <p class="font-sans text-sm text-cedax-beige/70 mb-4 line-clamp-2">{{ curso.descripcion[:100] }}...</p>
-                        <a href="/curso/{{ curso.slug }}" class="btn-luxury-outline w-full py-2 text-xs rounded-sm text-center block">
-                            Ver Programa
+                    <div class="p-4">
+                        <h3 class="font-display text-lg text-cedax-cream mb-2 group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
+                        {% if curso.duracion_horas %}
+                        <p class="font-sans text-xs text-cedax-beige/50 mb-2">{{ curso.duracion_horas }} horas • {{ curso.modalidad }}</p>
+                        {% endif %}
+                        {% if cursos_comprados_ids and curso.id in cursos_comprados_ids %}
+                        <a href="/aula/{{ curso.slug }}" class="btn-luxury w-full py-2 text-xs rounded-sm block text-center">
+                            Acceder al Curso
                         </a>
+                        {% else %}
+                        <button onclick="comprarCurso({{ curso.id }})" class="btn-luxury w-full py-2 text-xs rounded-sm">
+                            Inscribirse Ahora
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
                 {% endfor %}
@@ -71,4 +79,10 @@
         </div>
     </div>
 </div>
+
+<script>
+async function comprarCurso(cursoId) {
+    window.location.href = `/api/cursos/${cursoId}/comprar`;
+}
+</script>
 {% endblock %}

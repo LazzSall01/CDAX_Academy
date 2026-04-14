@@ -5,6 +5,7 @@ from app.config import obtener_configuracion
 from app.logs import logger
 from app.repositorios import CursoRepositorio
 from app.modelos import Suscripcion, EstadoSuscripcion
+from app.modelos.curso import Curso
 
 config = obtener_configuracion()
 stripe.api_key = config.STRIPE_SECRET_KEY
@@ -61,21 +62,27 @@ class CursoServicio:
             logger.error(f"Curso no encontrado: {curso_id}")
             raise ValueError("Curso no encontrado")
 
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            line_items=[
+        line_items = []
+        if curso.stripe_price_id:
+            line_items.append({"price": curso.stripe_price_id, "quantity": 1})
+        else:
+            line_items.append(
                 {
                     "price_data": {
-                        "currency": "usd",
+                        "currency": "mxn",
                         "product_data": {
                             "name": curso.titulo,
                             "description": curso.descripcion,
                         },
-                        "unit_amount": curso.precio,
+                        "unit_amount": curso.precio * 100,
                     },
                     "quantity": 1,
                 }
-            ],
+            )
+
+        session = stripe.checkout.Session.create(
+            payment_method_types=["card"],
+            line_items=line_items,
             mode="payment",
             success_url=f"{dominio}/pago/exitoso?session_id={{CHECKOUT_SESSION_ID}}",
             cancel_url=f"{dominio}/curso/{curso.slug}",
@@ -83,6 +90,7 @@ class CursoServicio:
                 "curso_id": str(curso_id),
                 "usuario_id": str(usuario_id),
             },
+            allow_promotion_codes=True,
         )
         logger.info(f"Stripe checkout session creada: {session.id}")
         return session.url
@@ -108,6 +116,22 @@ class CursoServicio:
         logger.warning(f"Pago no completado para sesión {session_id}")
         return False
 
+    def verificar_pago_stripe(self, session_id: str, usuario_id: int) -> tuple:
+        logger.info(f"Verificando pago Stripe: {session_id}")
+        session_obj = stripe.checkout.Session.retrieve(session_id)
+
+        if session_obj.payment_status != "paid":
+            raise ValueError("Pago no completado")
+
+        curso_id = int(session_obj.metadata.get("curso_id", 0))
+        metadata_usuario_id = int(session_obj.metadata.get("usuario_id", usuario_id))
+
+        if curso_id:
+            self.verificar_y_activar_suscripcion(session_id, metadata_usuario_id, curso_id)
+            return curso_id, metadata_usuario_id
+
+        return 0, metadata_usuario_id
+
     def verificar_acceso_curso(self, usuario_id: int, curso_id: int) -> bool:
         logger.info(f"Verificando acceso al curso {curso_id} para usuario {usuario_id}")
         suscripcion = (
@@ -126,3 +150,19 @@ class CursoServicio:
     def obtener_cursos_por_tipo(self, tipo: str) -> list:
         logger.info(f"Obteniendo cursos por tipo: {tipo}")
         return self.curso_repo.obtener_por_tipo(tipo)
+
+    def obtener_cursos_comprados(self, usuario_id: int) -> list:
+        logger.info(f"Obteniendo cursos comprados por usuario {usuario_id}")
+        suscripciones = (
+            self.sesion.query(Suscripcion)
+            .filter(
+                Suscripcion.usuario_id == usuario_id,
+                Suscripcion.estado == EstadoSuscripcion.ACTIVO,
+            )
+            .all()
+        )
+        curso_ids = [s.curso_id for s in suscripciones]
+        if not curso_ids:
+            return []
+        cursos = self.sesion.query(Curso).filter(Curso.id.in_(curso_ids)).all()
+        return cursos

@@ -145,7 +145,7 @@ document.getElementById('form-crear-curso').addEventListener('submit', async (e)
     if (result.success) {
         window.location.href = `/profesor/curso/${result.curso_id}`;
     } else {
-        alert('Error al crear curso: ' + result.detail);
+        console.error('Error al crear curso:', result.detail);
     }
 });
 </script>

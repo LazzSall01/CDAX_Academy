@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
+from typing import Optional
 from app.database import obtener_sesion
 from app.logs import logger
 from app.modelos import Usuario, RolUsuario
@@ -23,14 +24,18 @@ def verificar_admin(request: Request, sesion: Session = Depends(obtener_sesion))
     return usuario
 
 
-class CrearProfesorRequest(BaseModel):
-    email: str
-    contrasena: str
-    nombre: str
-    apellido: str
-    telefono: str = None
-    biografia: str = None
-    especialidad: str = None
+class CrearUsuarioRequest(BaseModel):
+    email: EmailStr = Field(..., description="Email del usuario")
+    contrasena: str = Field(..., min_length=6, max_length=100, description="Contraseña")
+    nombre: str = Field(..., min_length=1, max_length=100, description="Nombre")
+    apellido: str = Field(..., min_length=1, max_length=100, description="Apellido")
+    usuario: Optional[str] = Field(
+        None, max_length=100, description="Nombre de usuario para acceder"
+    )
+    rol: str = Field(..., description="Rol del usuario: PROFESOR, COORDINADOR")
+    telefono: Optional[str] = Field(None, max_length=20, description="Teléfono")
+    biografia: Optional[str] = Field(None, max_length=2000, description="Biografía")
+    especialidad: Optional[str] = Field(None, max_length=200, description="Especialidad")
 
 
 @router.get("/dashboard")
@@ -59,11 +64,37 @@ def dashboard(request: Request, sesion: Session = Depends(obtener_sesion)):
 
 
 @router.get("/profesores")
-def listar_profesores(request: Request, sesion: Session = Depends(obtener_sesion)):
-    """Listar todos los profesores"""
+def listar_profesores(
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+    pagina: int = 1,
+    por_pagina: int = 20,
+    buscar: str = None,
+):
+    """Listar todo el personal (profesores y coordinadores) con paginación"""
     usuario = verificar_admin(request, sesion)
 
-    profesores = sesion.query(Usuario).filter(Usuario.rol == RolUsuario.PROFESOR).all()
+    pagina = max(1, pagina)
+    por_pagina = min(max(1, por_pagina), 100)
+
+    query = sesion.query(Usuario).filter(
+        Usuario.rol.in_([RolUsuario.PROFESOR, RolUsuario.COORDINADOR])
+    )
+
+    if buscar:
+        query = query.filter(
+            (Usuario.nombre.ilike(f"%{buscar}%"))
+            | (Usuario.apellido.ilike(f"%{buscar}%"))
+            | (Usuario.email.ilike(f"%{buscar}%"))
+        )
+
+    total = query.count()
+    profesores = (
+        query.order_by(Usuario.fecha_registro.desc())
+        .offset((pagina - 1) * por_pagina)
+        .limit(por_pagina)
+        .all()
+    )
 
     return {
         "profesores": [
@@ -73,50 +104,72 @@ def listar_profesores(request: Request, sesion: Session = Depends(obtener_sesion
                 "nombre": p.nombre,
                 "apellido": p.apellido,
                 "telefono": p.telefono,
-                "especialidad": p.especialidad,
-                "biografia": p.biografia,
+                "rol": p.rol.value,
                 "activo": p.activo,
                 "fecha_registro": p.fecha_registro.isoformat() if p.fecha_registro else None,
             }
             for p in profesores
-        ]
+        ],
+        "paginacion": {
+            "pagina": pagina,
+            "por_pagina": por_pagina,
+            "total": total,
+            "total_paginas": (total + por_pagina - 1) // por_pagina,
+        },
     }
 
 
-@router.post("/profesores")
-def crear_profesor(
-    data: CrearProfesorRequest, request: Request, sesion: Session = Depends(obtener_sesion)
+@router.post("/usuarios")
+def crear_usuario(
+    data: CrearUsuarioRequest, request: Request, sesion: Session = Depends(obtener_sesion)
 ):
-    """Crear un nuevo profesor"""
+    """Crear un nuevo usuario con rol específico (PROFESOR o COORDINADOR)"""
     usuario = verificar_admin(request, sesion)
 
-    # Verificar que el email no existe
+    rol_valido = data.rol.upper()
+    if rol_valido not in ["PROFESOR", "COORDINADOR", "ALUMNO"]:
+        raise HTTPException(
+            status_code=400, detail="Rol no válido. Use PROFESOR, COORDINADOR o ALUMNO"
+        )
+
+    rol = RolUsuario[rol_valido]
+
     existe = sesion.query(Usuario).filter(Usuario.email == data.email).first()
     if existe:
         raise HTTPException(status_code=400, detail="El email ya está registrado")
 
-    # Crear profesor
+    # Verificar si el usuario ya existe
+    if data.usuario:
+        existe_usuario = sesion.query(Usuario).filter(Usuario.usuario == data.usuario).first()
+        if existe_usuario:
+            raise HTTPException(status_code=400, detail="El nombre de usuario ya está registrado")
+
     auth_servicio = AuthServicio(sesion)
     try:
-        profesor = auth_servicio.registrar_usuario(
+        nuevo_usuario = auth_servicio.registrar_usuario(
             email=data.email,
             contrasena=data.contrasena,
             nombre=data.nombre,
             apellido=data.apellido,
-            rol=RolUsuario.PROFESOR,
+            rol=rol,
+            usuario_nombre=data.usuario,
         )
 
-        # Actualizar campos adicionales
-        profesor.telefono = data.telefono
-        profesor.biografia = data.biografia
-        profesor.especialidad = data.especialidad
+        nuevo_usuario.telefono = data.telefono
+        nuevo_usuario.biografia = data.biografia
+        nuevo_usuario.especialidad = data.especialidad
         sesion.commit()
 
-        logger.info(f"Profesor creado: {profesor.email}")
-        return {"success": True, "profesor_id": profesor.id, "email": profesor.email}
+        logger.info(f"Usuario creado con rol {rol.value}: {nuevo_usuario.email}")
+        return {
+            "success": True,
+            "usuario_id": nuevo_usuario.id,
+            "email": nuevo_usuario.email,
+            "rol": rol.value,
+        }
 
     except Exception as e:
-        logger.error(f"Error al crear profesor: {e}")
+        logger.error(f"Error al crear usuario: {e}")
         raise HTTPException(status_code=400, detail=str(e))
 
 
@@ -146,7 +199,7 @@ def eliminar_profesor(
 @router.put("/profesores/{profesor_id}")
 def actualizar_profesor(
     profesor_id: int,
-    data: CrearProfesorRequest,
+    data: CrearUsuarioRequest,
     request: Request,
     sesion: Session = Depends(obtener_sesion),
 ):
@@ -162,7 +215,6 @@ def actualizar_profesor(
     if not profesor:
         raise HTTPException(status_code=404, detail="Profesor no encontrado")
 
-    # Verificar email único
     email_existe = (
         sesion.query(Usuario).filter(Usuario.email == data.email, Usuario.id != profesor_id).first()
     )
@@ -239,3 +291,226 @@ def guardar_config_bunny(
     sesion.commit()
     logger.info("Configuración de Bunny guardada")
     return {"success": True}
+
+
+# ==================== GESTIÓN DE CURSOS ====================
+class CrearCursoRequest(BaseModel):
+    titulo: str = Field(..., min_length=1, max_length=255)
+    descripcion: Optional[str] = Field(None, max_length=2000)
+    precio: int = Field(0, ge=0)
+    tipo_programa: str = Field("CURSO")
+
+
+class ActualizarCursoRequest(BaseModel):
+    titulo: Optional[str] = Field(None, min_length=1, max_length=255)
+    descripcion: Optional[str] = Field(None, max_length=2000)
+    descripcion_larga: Optional[str] = Field(None)
+    precio: Optional[int] = Field(None, ge=0)
+    tipo_programa: Optional[str] = None
+    activo: Optional[bool] = None
+    imagen_url: Optional[str] = Field(None, max_length=500)
+    fecha_inicio: Optional[str] = None
+    fecha_fin_inscripcion: Optional[str] = None
+    estado_inscripcion: Optional[str] = None
+    whatsapp_contacto: Optional[str] = Field(None, max_length=20)
+    duracion_horas: Optional[int] = None
+    modalidad: Optional[str] = None
+    incluye_diploma: Optional[bool] = None
+    incluye_materiales: Optional[bool] = None
+    requisitos_admision: Optional[str] = None
+    capacidad_maxima: Optional[int] = None
+
+
+@router.get("/cursos")
+def listar_cursos(sesion: Session = Depends(obtener_sesion)):
+    """Listar todos los cursos para admin"""
+    from app.modelos import Curso, Modulo, Leccion
+
+    cursos_orm = sesion.query(Curso).all()
+    resultado = []
+    for c in cursos_orm:
+        modulos_count = sesion.query(Modulo).filter(Modulo.curso_id == c.id).count()
+        lecciones_count = sesion.query(Leccion).join(Modulo).filter(Modulo.curso_id == c.id).count()
+        resultado.append(
+            {
+                "id": c.id,
+                "titulo": c.titulo,
+                "slug": c.slug,
+                "descripcion": c.descripcion,
+                "precio": c.precio,
+                "tipo_programa": c.tipo_programa,
+                "activo": c.activo,
+                "imagen_url": c.imagen_url,
+                "modulos": modulos_count,
+                "lecciones": lecciones_count,
+            }
+        )
+    return resultado
+
+
+@router.post("/cursos")
+def crear_curso(datos: CrearCursoRequest, sesion: Session = Depends(obtener_sesion)):
+    """Crear un nuevo curso"""
+    from app.modelos import Curso
+    import slugify
+
+    titre_slug = slugify.slugify(datos.titulo)
+    curso = Curso(
+        titulo=datos.titulo,
+        slug=titre_slug,
+        descripcion=datos.descripcion,
+        precio=datos.precio,
+        tipo_programa=datos.tipo_programa,
+        activo=True,
+    )
+    sesion.add(curso)
+    sesion.commit()
+    sesion.refresh(curso)
+    logger.info(f"Curso creado: {curso.id} - {curso.titulo}")
+    return {"id": curso.id, "titulo": curso.titulo}
+
+
+@router.get("/cursos/{curso_id}")
+def obtener_curso(curso_id: int, sesion: Session = Depends(obtener_sesion)):
+    """Obtener un curso específico"""
+    from app.modelos import Curso, Modulo, Leccion, Usuario, CursoInstructor
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+    modulos = sesion.query(Modulo).filter(Modulo.curso_id == curso_id).order_by(Modulo.orden).all()
+    modulos_data = []
+    for m in modulos:
+        lecciones = (
+            sesion.query(Leccion).filter(Leccion.modulo_id == m.id).order_by(Leccion.orden).all()
+        )
+        modulos_data.append(
+            {
+                "id": m.id,
+                "titulo": m.titulo,
+                "orden": m.orden,
+                "lecciones": [
+                    {"id": l.id, "titulo": l.titulo, "orden": l.orden, "video_url": l.video_url}
+                    for l in lecciones
+                ],
+            }
+        )
+    from app.modelos import Instructor
+
+    instructores_curso = (
+        sesion.query(CursoInstructor).filter(CursoInstructor.curso_id == curso_id).all()
+    )
+    instructores_data = []
+    for ci in instructores_curso:
+        inst = sesion.query(Instructor).filter(Instructor.id == ci.instructor_id).first()
+        if inst:
+            instructores_data.append({"id": inst.id, "nombre": f"{inst.nombre} {inst.apellido}"})
+    return {
+        "id": curso.id,
+        "titulo": curso.titulo,
+        "slug": curso.slug,
+        "descripcion": curso.descripcion,
+        "descripcion_larga": curso.descripcion_larga,
+        "precio": curso.precio,
+        "tipo_programa": curso.tipo_programa,
+        "activo": curso.activo,
+        "imagen_url": curso.imagen_url,
+        "fecha_inicio": curso.fecha_inicio.isoformat() if curso.fecha_inicio else None,
+        "fecha_fin_inscripcion": curso.fecha_fin_inscripcion.isoformat()
+        if curso.fecha_fin_inscripcion
+        else None,
+        "estado_inscripcion": curso.estado_inscripcion,
+        "whatsapp_contacto": curso.whatsapp_contacto,
+        "duracion_horas": curso.duracion_horas,
+        "modalidad": curso.modalidad,
+        "incluye_diploma": curso.incluye_diploma,
+        "incluye_materiales": curso.incluye_materiales,
+        "requisitos_admision": curso.requisitos_admision,
+        "capacidad_maxima": curso.capacidad_maxima,
+        "modulos": modulos_data,
+        "instructores": instructores_data,
+    }
+
+
+@router.put("/cursos/{curso_id}")
+def actualizar_curso(
+    curso_id: int, datos: ActualizarCursoRequest, sesion: Session = Depends(obtener_sesion)
+):
+    """Actualizar un curso"""
+    from app.modelos import Curso
+    from datetime import datetime
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+    datos_dict = datos.model_dump(exclude_none=True)
+    for campo, valor in datos_dict.items():
+        if valor is not None:
+            setattr(curso, campo, valor)
+    sesion.commit()
+    logger.info(f"Curso actualizado: {curso_id}")
+    return {"success": True}
+
+
+@router.post("/cursos/{curso_id}/toggle")
+def toggle_curso(curso_id: int, sesion: Session = Depends(obtener_sesion)):
+    """Activar/desactivar un curso"""
+    from app.modelos import Curso
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+    curso.activo = not curso.activo
+    sesion.commit()
+    logger.info(f"Curso toggle: {curso_id} - activo: {curso.activo}")
+    return {"activo": curso.activo}
+
+
+@router.delete("/cursos/{curso_id}")
+def eliminar_curso(curso_id: int, sesion: Session = Depends(obtener_sesion)):
+    """Eliminar un curso"""
+    from app.modelos import Curso
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+    sesion.delete(curso)
+    sesion.commit()
+    logger.info(f"Curso eliminado: {curso_id}")
+    return {"success": True}
+
+
+@router.post("/cursos/{curso_id}/aprobar")
+def aprobar_cambio_precio(curso_id: int, sesion: Session = Depends(obtener_sesion)):
+    """Aprobar cambio de precio pendiente"""
+    from app.modelos import Curso
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    if curso.precio_pendiente:
+        curso.precio = curso.precio_pendiente
+        curso.precio_pendiente = None
+        curso.estado_aprobacion = "APROBADO"
+        sesion.commit()
+        logger.info(f"Precio aprobado para curso {curso_id}: {curso.precio}")
+        return {"success": True, "precio": curso.precio, "estado_aprobacion": "APROBADO"}
+
+    return {"success": True, "mensaje": "No hay cambios pendientes"}
+
+
+@router.post("/cursos/{curso_id}/rechazar")
+def rechazar_cambio_precio(curso_id: int, sesion: Session = Depends(obtener_sesion)):
+    """Rechazar cambio de precio pendiente"""
+    from app.modelos import Curso
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    curso.precio_pendiente = None
+    curso.estado_aprobacion = "RECHAZADO"
+    sesion.commit()
+    logger.info(f"Precio rechazado para curso {curso_id}")
+    return {"success": True, "estado_aprobacion": "RECHAZADO"}

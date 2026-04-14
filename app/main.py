@@ -29,6 +29,7 @@ from app.api import (
     foro_router,
     admin_router,
     profesor_router,
+    coordinator_router,
 )
 from app.gui.rutas import router as gui_router
 from app.gui import inicializar_plantillas
@@ -87,6 +88,7 @@ app.include_router(webhooks_router, prefix="/api")
 app.include_router(foro_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 app.include_router(profesor_router, prefix="/api")
+app.include_router(coordinator_router, prefix="/api")
 app.include_router(gui_router)
 
 

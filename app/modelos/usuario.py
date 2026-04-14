@@ -7,6 +7,7 @@ import enum
 
 class RolUsuario(enum.Enum):
     ADMIN = "ADMIN"
+    COORDINADOR = "COORDINADOR"
     PROFESOR = "PROFESOR"
     ALUMNO = "ALUMNO"
 
@@ -16,14 +17,15 @@ class Usuario(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     google_id = Column(String(255), unique=True, nullable=True, index=True)
+    usuario = Column(String(100), unique=True, nullable=True, index=True)
     email = Column(String(255), unique=True, nullable=False, index=True)
     contrasena_hash = Column(String(255), nullable=True)
     nombre = Column(String(100), nullable=False)
     apellido = Column(String(100), nullable=False)
-    rol = Column(SQLEnum(RolUsuario), default=RolUsuario.ALUMNO, nullable=False)
+    rol = Column(SQLEnum(RolUsuario), default=RolUsuario.ALUMNO, nullable=False, index=True)
     avatar_url = Column(String(500), nullable=True)
     fecha_registro = Column(DateTime(timezone=True), server_default=func.now())
-    activo = Column(Boolean, default=True)
+    activo = Column(Boolean, default=True, index=True)
 
     # Campos para profesor
     bunny_library_id = Column(String(100), nullable=True)

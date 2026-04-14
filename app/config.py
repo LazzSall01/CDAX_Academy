@@ -14,7 +14,7 @@ class Configuracion(BaseSettings):
     MODO_DESARROLLO: bool = True
 
     # Dominio
-    DOMAIN: str = "localhost:8000"
+    DOMAIN: str = "https://pmn8x3l7-8000.usw3.devtunnels.ms"
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str = ""
@@ -24,8 +24,8 @@ class Configuracion(BaseSettings):
     GOOGLE_USER_INFO_URL: str = "https://www.googleapis.com/oauth2/v2/userinfo"
 
     # Stripe
-    STRIPE_PUBLIC_KEY: str = ""
-    STRIPE_SECRET_KEY: str = ""
+    STRIPE_PUBLIC_KEY: str = "pk_test_51Sv8MrRGI5ZSN6ze6dJtVDqieyshWYHcfMWueoSmLU30seqeSc2lZpOYHAX4tbSWukN4rohN5AtHiRedopZAFn0o00URE7rkbg"
+    STRIPE_SECRET_KEY: str = "sk_test_51Sv8MrRGI5ZSN6ze6dJtVDqieyshWYHcfMWueoSmLU30seqeSc2lZpOYHAX4tbSWukN4rohN5AtHiRedopZAFn0o00URE7rkbg"
     STRIPE_WEBHOOK_SECRET: str = ""
 
     # CDAX - Información de contacto

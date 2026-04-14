@@ -520,6 +520,7 @@ class ActualizarCursoCoordinadorRequest(BaseModel):
     modalidad: Optional[str] = None
     duracion_horas: Optional[int] = None
     capacidad_maxima: Optional[int] = None
+    precio: Optional[int] = Field(None, ge=0)
 
 
 @router.get("/cursos/{curso_id}")
@@ -576,16 +577,29 @@ def actualizar_curso_coordinador_completo(
     datos: ActualizarCursoCoordinadorRequest,
     sesion: Session = Depends(obtener_sesion),
 ):
-    """Actualizar un curso completo"""
+    """Actualizar un curso - precio queda pendiente de aprobación"""
     from app.modelos import Curso
 
+    usuario = verificar_coordinador(None, sesion)
     curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
     if not curso:
         raise HTTPException(status_code=404, detail="Curso no encontrado")
     datos_dict = datos.model_dump(exclude_none=True)
+
     for campo, valor in datos_dict.items():
         if valor is not None:
-            setattr(curso, campo, valor)
+            if campo == "precio":
+                curso.precio_pendiente = valor
+                curso.estado_aprobacion = "PENDIENTE"
+                logger.info(
+                    f"Coordinador {usuario.email} cambió precio a {valor} - pendiente aprobación"
+                )
+            else:
+                setattr(curso, campo, valor)
     sesion.commit()
     logger.info(f"Curso actualizado por coordinador: {curso_id}")
-    return {"success": True}
+    return {
+        "success": True,
+        "estado_aprobacion": "PENDIENTE",
+        "mensaje": "Precio pendiente de aprobación por admin",
+    }

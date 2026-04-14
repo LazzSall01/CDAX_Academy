@@ -15,10 +15,10 @@ class Suscripcion(Base):
     __tablename__ = "suscripciones"
 
     id = Column(Integer, primary_key=True, index=True)
-    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False)
-    curso_id = Column(Integer, ForeignKey("cursos.id"), nullable=False)
+    usuario_id = Column(Integer, ForeignKey("usuarios.id"), nullable=False, index=True)
+    curso_id = Column(Integer, ForeignKey("cursos.id"), nullable=False, index=True)
     stripe_subscription_id = Column(String(100), nullable=True)
-    estado = Column(SQLEnum(EstadoSuscripcion), default=EstadoSuscripcion.PENDIENTE)
+    estado = Column(SQLEnum(EstadoSuscripcion), default=EstadoSuscripcion.PENDIENTE, index=True)
     fecha_inicio = Column(DateTime(timezone=True), nullable=True)
     fecha_fin = Column(DateTime(timezone=True), nullable=True)
     fecha_creacion = Column(DateTime(timezone=True), server_default=func.now())

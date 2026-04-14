@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block titulo %}Alumnos - Panel de Coordinación - CDAX Academy{% endblock %}
+
+{% block contenido %}
+<div class="min-h-screen bg-cedax-primary flex">
+    <!-- Sidebar -->
+    <aside class="w-72 fixed left-0 top-0 h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark border-r border-cedax-secondary/10 z-40">
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <a href="/" class="flex items-center gap-3">
+                <img src="/static/logo.jpg" alt="CDAX" class="h-10 w-auto rounded-sm">
+                <div>
+                    <span class="font-display text-lg font-bold text-gold-luxury">CDAX</span>
+                    <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider">Coordinación</p>
+                </div>
+            </a>
+        </div>
+        
+        <div class="p-6 border-b border-cedax-secondary/10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                    <span class="font-display text-sm text-cedax-secondary">{{ usuario.nombre[0] }}{{ usuario.apellido[0] }}</span>
+                </div>
+                <div>
+                    <p class="font-sans text-sm text-white">{{ usuario.nombre }} {{ usuario.apellido }}</p>
+                    <p class="font-sans text-xs text-cedax-cream/40">Coordinador</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="px-6 py-4 border-b border-cedax-secondary/10">
+            <p class="font-display text-sm text-cedax-secondary">Gestión de Alumnos</p>
+        </div>
+        
+        <nav class="p-4 space-y-2">
+            <a href="/coordinador/dashboard" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
+                </svg>
+                <span class="font-sans text-sm">Dashboard</span>
+            </a>
+            
+            <a href="/coordinador/profesores" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
+                </svg>
+                <span class="font-sans text-sm">Profesores</span>
+            </a>
+            
+            <a href="/coordinador/alumnos" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-cedax-secondary/20 text-cedax-secondary border border-cedax-secondary/30 group transition-all duration-300">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="font-sans text-sm">Alumnos</span>
+            </a>
+            
+            <a href="/coordinador/cursos" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary border border-transparent hover:border-cedax-secondary/20 group transition-all duration-300">
+                <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                </svg>
+                <span class="font-sans text-sm">Cursos</span>
+            </a>
+            
+            <div class="pt-4 mt-4 border-t border-cedax-secondary/10">
+                <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-cream/60 hover:bg-cedax-secondary/10 hover:text-cedax-secondary group transition-all duration-300">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="font-sans text-sm">Volver al Inicio</span>
+                </a>
+                <a href="/auth/logout" class="flex items-center gap-3 px-4 py-3 rounded-lg text-cedax-accent/60 hover:bg-cedax-accent/10 group transition-all duration-300">
+                    <svg class="w-5 h-5 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    <span class="font-sans text-sm">Cerrar Sesión</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="flex-1 ml-72 pb-20 px-8">
+        <!-- Buscador -->
+        <div class="glass-luxury p-3 rounded-lg mb-4 w-1/2">
+            <div class="relative">
+                <svg class="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-cedax-cream/40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+                <input type="text" id="buscador" placeholder="Buscar alumnos..." class="input-luxury w-full pl-10 py-2 rounded-lg text-sm">
+            </div>
+        </div>
+        
+        <!-- Tabla -->
+        <div class="glass-luxury rounded-lg overflow-hidden">
+            <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+                <table class="w-full">
+                    <thead class="bg-cedax-primary/50 border-b border-cedax-secondary/20 sticky top-0">
+                        <tr>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Nombre</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Cursos</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-cedax-secondary/10" id="tabla-alumnos">
+                        {% for alumno in alumnos %}
+                        <tr class="hover:bg-cedax-secondary/5 transition-colors duration-200 group">
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                                        <span class="font-display text-sm text-cedax-secondary">{{ alumno.nombre[0] }}{{ alumno.apellido[0] }}</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-sans text-white">{{ alumno.nombre }} {{ alumno.apellido }}</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <p class="font-sans text-cedax-cream/70">{{ alumno.email }}</p>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="badge-luxury">{{ alumno.cursos_inscritos }} cursos</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                {% if alumno.activo %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">
+                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                                    Activo
+                                </span>
+                                {% else %}
+                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-500 text-sm">
+                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
+                                    Inactivo
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="verAlumno({{ alumno.id }})" class="p-2 rounded-lg hover:bg-cedax-secondary/20 text-cedax-cream/60 hover:text-cedax-secondary transition-all duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
+                                    </button>
+                                    {% if alumno.activo %}
+                                    <button onclick="desactivarAlumno({{ alumno.id }})" class="p-2 rounded-lg hover:bg-cedax-accent/20 text-cedax-cream/60 hover:text-cedax-accent transition-all duration-200">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                        </svg>
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+document.getElementById('buscador').addEventListener('input', function(e) {
+    const busqueda = e.target.value.toLowerCase();
+    const filas = document.querySelectorAll('#tabla-alumnos tr');
+    filas.forEach(fila => {
+        const texto = fila.textContent.toLowerCase();
+        fila.style.display = texto.includes(busqueda) ? '' : 'none';
+    });
+});
+
+function verAlumno(id) {
+    console.log('Ver detalle del alumno:', id);
+}
+
+async function desactivarAlumno(id) {
+    try {
+        const response = await fetch(`/api/coordinador/alumnos/${id}`, {method: 'DELETE'});
+        if (response.ok) location.reload();
+    } catch (err) {
+        console.error('Error al desactivar alumno');
+    }
+}
+</script>
+{% endblock %}

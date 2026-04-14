@@ -15,6 +15,7 @@ class RegistroRequest(BaseModel):
     contrasena: str
     nombre: str
     apellido: str
+    usuario: str | None = None
 
 
 class LoginRequest(BaseModel):
@@ -28,6 +29,7 @@ def registro(
     contrasena: str = Form(...),
     nombre: str = Form(...),
     apellido: str = Form(...),
+    usuario: str = Form(None),
     sesion: Session = Depends(obtener_sesion),
 ):
     logger.info(f"Registro solicitado para: {email}")
@@ -39,6 +41,7 @@ def registro(
             contrasena=contrasena,
             nombre=nombre,
             apellido=apellido,
+            usuario_nombre=usuario,
         )
 
         token_jwt = auth_servicio.generar_token_jwt(usuario.id, usuario.rol)
@@ -62,8 +65,16 @@ def registro(
 
 @router.post("/login")
 def login(
-    email: str = Form(...), contrasena: str = Form(...), sesion: Session = Depends(obtener_sesion)
+    email: str = Form(...),
+    contrasena: str = Form(...),
+    session_id: str | None = Form(None),
+    sesion: Session = Depends(obtener_sesion),
 ):
+    from fastapi.responses import RedirectResponse
+    from app.servicios import CursoServicio
+    from app.config import obtener_configuracion
+    import stripe
+
     logger.info(f"Login solicitado para: {email}")
     auth_servicio = AuthServicio(sesion)
 
@@ -73,9 +84,33 @@ def login(
 
     token_jwt = auth_servicio.generar_token_jwt(usuario.id, usuario.rol)
 
+    # Procesar curso comprado si hay session_id
+    if session_id:
+        try:
+            config = obtener_configuracion()
+            stripe.api_key = config.STRIPE_SECRET_KEY
+            session_obj = stripe.checkout.Session.retrieve(session_id)
+
+            if session_obj.payment_status == "paid":
+                metadata = dict(session_obj.metadata) if session_obj.metadata else {}
+                curso_id = int(metadata.get("curso_id", 0))
+
+                if curso_id:
+                    servicio = CursoServicio(sesion)
+                    tiene_acceso = servicio.verificar_acceso_curso(usuario.id, curso_id)
+                    if not tiene_acceso:
+                        servicio.verificar_y_activar_suscripcion(session_id, usuario.id, curso_id)
+                        logger.info(
+                            f"Suscripción creada tras login: usuario {usuario.id}, curso {curso_id}"
+                        )
+        except Exception as e:
+            logger.error(f"Error procesando curso tras login: {e}")
+
     # Redirección según rol
     if usuario.rol == RolUsuario.ADMIN:
         destino = "/admin/dashboard"
+    elif usuario.rol == RolUsuario.COORDINADOR:
+        destino = "/coordinador/dashboard"
     elif usuario.rol == RolUsuario.PROFESOR:
         destino = "/profesor/dashboard"
     else:
@@ -122,6 +157,8 @@ def callback_google(code: str, state: str, sesion: Session = Depends(obtener_ses
     # Redirección según rol
     if usuario.rol == RolUsuario.ADMIN:
         destino = "/admin/dashboard"
+    elif usuario.rol == RolUsuario.COORDINADOR:
+        destino = "/coordinador/dashboard"
     elif usuario.rol == RolUsuario.PROFESOR:
         destino = "/profesor/dashboard"
     else:
@@ -188,6 +225,51 @@ def login_demo(sesion: Session = Depends(obtener_sesion)):
         max_age=86400,
     )
     logger.info(f"Usuario demo autenticado: {usuario.email}")
+    return response
+
+
+@router.get("/demo-estudiante")
+def login_demo_estudiante(sesion: Session = Depends(obtener_sesion)):
+    from jose import jwt
+    from datetime import datetime, timedelta
+
+    logger.info("Login demo estudiante iniciado")
+
+    usuario = sesion.query(Usuario).filter(Usuario.email == "estudiante1@cdax.com").first()
+    if not usuario:
+        from app.servicios.auth_servicio import AuthServicio
+
+        auth_servicio = AuthServicio(sesion)
+        usuario = auth_servicio.registrar_usuario(
+            email="estudiante1@cdax.com",
+            contrasena="estudiante1",
+            nombre="Estudiante",
+            apellido="Uno",
+            rol=RolUsuario.ALUMNO,
+            usuario_nombre="estudiante1",
+        )
+        logger.info(f"Usuario estudiante creado: {usuario.id}")
+
+    from app.config import obtener_configuracion
+
+    config = obtener_configuracion()
+    payload = {
+        "sub": str(usuario.id),
+        "rol": usuario.rol.value,
+        "exp": datetime.utcnow() + timedelta(hours=24),
+    }
+    token = jwt.encode(payload, config.SECRET_KEY, algorithm="HS256")
+
+    response = RedirectResponse(url="/dashboard")
+    response.set_cookie(
+        key="session_token",
+        value=token,
+        httponly=True,
+        secure=False,
+        samesite="lax",
+        max_age=86400,
+    )
+    logger.info(f"Usuario estudiante autenticado: {usuario.email}")
     return response
 
 

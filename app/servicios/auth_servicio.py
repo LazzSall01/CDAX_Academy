@@ -78,7 +78,13 @@ class AuthServicio:
         return usuario
 
     def registrar_usuario(
-        self, email: str, contrasena: str, nombre: str, apellido: str, rol: RolUsuario = None
+        self,
+        email: str,
+        contrasena: str,
+        nombre: str,
+        apellido: str,
+        rol: RolUsuario = None,
+        usuario_nombre: str = None,
     ) -> object:
         logger.info(f"Registrando nuevo usuario: {email}")
 
@@ -87,12 +93,19 @@ class AuthServicio:
             logger.warning(f"Usuario ya existe: {email}")
             raise ValueError("El email ya está registrado")
 
+        if usuario_nombre:
+            usuario_existente = self.usuario_repo.buscar_por_usuario(usuario_nombre)
+            if usuario_existente:
+                logger.warning(f"Usuario ya existe: {usuario_nombre}")
+                raise ValueError("El nombre de usuario ya está registrado")
+
         usuario = self.usuario_repo.crear_usuario_email(
             email=email,
             contrasena=contrasena,
             nombre=nombre,
             apellido=apellido,
             rol=rol,
+            usuario=usuario_nombre,
         )
         return usuario
 
@@ -100,6 +113,10 @@ class AuthServicio:
         logger.info(f"Intentando login con email: {email}")
 
         usuario = self.usuario_repo.buscar_por_email(email)
+        if not usuario:
+            # También buscar por nombre de usuario
+            logger.info(f"Buscando por nombre de usuario: {email}")
+            usuario = self.usuario_repo.buscar_por_usuario(email)
         if not usuario:
             logger.warning(f"Usuario no encontrado: {email}")
             return None

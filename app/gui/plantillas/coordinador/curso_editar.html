@@ -83,6 +83,13 @@
                             <label class="block text-sm text-cedax-cream/60 mb-2">Descripción</label>
                             <textarea id="descripcion" rows="4" class="input-luxury w-full px-4 py-3 rounded-lg">{{ curso.descripcion or '' }}</textarea>
                         </div>
+                        <div>
+                            <label class="block text-sm text-cedax-cream/60 mb-2">Precio ($)</label>
+                            <input type="number" id="precio" value="{{ curso.precio }}" class="input-luxury w-full px-4 py-3 rounded-lg">
+                            {% if curso.precio_pendiente %}
+                            <p class="text-yellow-500 text-xs mt-1">Nuevo precio pendiente: ${{ curso.precio_pendiente }} (esperando aprobación)</p>
+                            {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -157,6 +164,7 @@ async function guardarCurso() {
     const datos = {
         titulo: document.getElementById('titulo').value,
         descripcion: document.getElementById('descripcion').value,
+        precio: parseInt(document.getElementById('precio').value) || 0,
         modalidad: document.getElementById('modalidad').value,
         duracion_horas: parseInt(document.getElementById('duracion_horas').value) || 0,
     };
@@ -169,6 +177,9 @@ async function guardarCurso() {
         });
         if (response.ok) {
             alert('Cambios guardados');
+        } else {
+            const error = await response.json();
+            alert(error.detail || 'Error al guardar');
         }
     } catch (err) {
         console.error(err);

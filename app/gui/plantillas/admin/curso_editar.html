@@ -161,6 +161,20 @@
                     </button>
                 </div>
 
+                {% if curso.precio_pendiente %}
+                <div class="glass-luxury p-6 rounded-lg border-2 border-yellow-500/50">
+                    <h2 class="font-display text-xl text-yellow-500 mb-4">Cambio Pendiente</h2>
+                    <div class="bg-cedax-primary-dark p-3 rounded-lg mb-3">
+                        <p class="text-sm text-cedax-cream/60">Precio actual: <span class="text-white font-display">${{ curso.precio }}</span></p>
+                        <p class="text-sm text-cedax-cream/60">Precio nuevo: <span class="text-yellow-500 font-display">${{ curso.precio_pendiente }}</span></p>
+                    </div>
+                    <div class="flex gap-2">
+                        <button onclick="aprobarPrecio()" class="flex-1 py-2 rounded-lg bg-green-500 text-white text-sm">Aprobar</button>
+                        <button onclick="rechazarPrecio()" class="flex-1 py-2 rounded-lg bg-red-500 text-white text-sm">Rechazar</button>
+                    </div>
+                </div>
+                {% endif %}
+
                 <div class="glass-luxury p-6 rounded-lg">
                     <h2 class="font-display text-xl text-white mb-4">Instructores Asignados</h2>
                     <div id="instructores-list" class="space-y-2 mb-4">
@@ -248,6 +262,28 @@ function removerInstructor(id) {
 
 function agregarModulo() {
     alert('Funcionalidad de agregar módulo - en desarrollo');
+}
+
+async function aprobarPrecio() {
+    if (!confirm('¿Aprobar el cambio de precio?')) return;
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/aprobar`, {method: 'POST'});
+        if (response.ok) {
+            alert('Precio aprobado');
+            location.reload();
+        }
+    } catch (err) {}
+}
+
+async function rechazarPrecio() {
+    if (!confirm('¿Rechazar el cambio de precio?')) return;
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/rechazar`, {method: 'POST'});
+        if (response.ok) {
+            alert('Precio rechazado');
+            location.reload();
+        }
+    } catch (err) {}
 }
 
 function eliminarPrograma() {

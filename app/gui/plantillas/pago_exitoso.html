@@ -3,18 +3,53 @@
 {% block titulo %}Pago Exitoso - CDAX Academy{% endblock %}
 
 {% block contenido %}
-<div class="min-h-screen bg-cedax-primary flex items-center justify-center">
-    <div class="text-center px-6">
-        <div class="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-6 border border-green-500/40">
-            <svg class="w-10 h-10 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+<div class="min-h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark flex items-center justify-center py-20">
+    <div class="w-full max-w-md px-8 text-center">
+        <!-- Icono de éxito -->
+        <div class="w-24 h-24 mx-auto mb-8 flex items-center justify-center bg-green-500/20 rounded-full border-2 border-green-500">
+            <svg class="w-12 h-12 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
             </svg>
         </div>
-        <h1 class="font-display text-3xl font-bold text-white mb-4">¡Pago Exitoso!</h1>
-        <p class="font-sans text-cedax-cream/70 mb-8">Tu inscripción ha sido confirmada. Ya puedes acceder al curso.</p>
-        <a href="/dashboard" class="btn-luxury inline-block px-6 py-3 rounded-lg font-semibold">
-            Ir a Mi Dashboard
+        
+        <!-- Título -->
+        <h1 class="font-display text-4xl text-cedax-cream mb-4">
+            ¡Gracias por tu pago!
+        </h1>
+        
+        <!-- Mensaje -->
+        <p class="font-sans text-lg text-cedax-cream/70 mb-8">
+            Tu inscripción ha sido procesada exitosamente. Ya puedes acceder a todos los contenidos del curso.
+        </p>
+        
+        {% if session_id %}
+        <div class="glass-luxury rounded-lg p-4 mb-8 text-left">
+            <p class="font-sans text-xs text-cedax-cream/50 uppercase tracking-wider mb-2">ID de Transacción</p>
+            <p class="font-mono text-sm text-cedax-secondary break-all">{{ session_id }}</p>
+        </div>
+        {% endif %}
+        
+        {% if usuario %}
+        <a href="/dashboard" class="btn-luxury inline-block w-full py-4 text-sm rounded-sm">
+            Ir a Mi Aula
         </a>
+        {% else %}
+        <div class="bg-cedax-primary-light/50 rounded-lg p-6 border border-cedax-secondary/20">
+            <p class="font-sans text-cedax-cream/70 mb-4">
+                Para acceder a tu curso, inicia sesión con la cuenta que usaste para el pago.
+            </p>
+            <a href="/login" class="btn-luxury inline-block w-full py-4 text-sm rounded-sm">
+                Iniciar Sesión
+            </a>
+        </div>
+        {% endif %}
     </div>
 </div>
+
+<style>
+.glass-luxury {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(191,128,73,0.15);
+}
+</style>
 {% endblock %}

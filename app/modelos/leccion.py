@@ -17,7 +17,7 @@ class Leccion(Base):
     __tablename__ = "lecciones"
 
     id = Column(Integer, primary_key=True, index=True)
-    modulo_id = Column(Integer, ForeignKey("modulos.id"), nullable=False)
+    modulo_id = Column(Integer, ForeignKey("modulos.id"), nullable=False, index=True)
     titulo = Column(String(255), nullable=False)
     descripcion = Column(Text, nullable=True)
     video_url = Column(String(500), nullable=True)
@@ -28,7 +28,7 @@ class Leccion(Base):
     bunny_video_id = Column(String(100), nullable=True)
     bunny_thumbnail_url = Column(String(500), nullable=True)
     duracion_segundos = Column(Integer, default=0)
-    estado_video = Column(String(20), default="SIN_SUBIR")
+    estado_video = Column(String(20), default="SIN_SUBIR", index=True)
     fecha_subida = Column(DateTime(timezone=True), nullable=True)
 
     # Videos externos (YouTube, Vimeo)

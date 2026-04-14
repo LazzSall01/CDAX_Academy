@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, Request, UploadFile, File
 from fastapi.responses import JSONResponse
 from sqlalchemy.orm import Session
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from typing import Optional
 from app.database import obtener_sesion
 from app.logs import logger
 from app.modelos import Usuario, RolUsuario, Curso, Modulo, Leccion
@@ -66,14 +67,16 @@ def dashboard(request: Request, sesion: Session = Depends(obtener_sesion)):
 
 
 class CrearCursoRequest(BaseModel):
-    titulo: str
-    descripcion: str
-    precio: int
-    duracion_horas: int = None
-    modalidad: str = "EN_LINEA"
-    incluye_diploma: bool = True
-    incluye_materiales: bool = True
-    requisitos_admision: str = None
+    titulo: str = Field(..., min_length=1, max_length=255, description="Título del curso")
+    descripcion: str = Field(..., max_length=2000, description="Descripción del curso")
+    precio: int = Field(..., ge=0, description="Precio del curso")
+    duracion_horas: Optional[int] = Field(None, ge=1, description="Duración en horas")
+    modalidad: str = Field(default="EN_LINEA", description="Modalidad del curso")
+    incluye_diploma: bool = Field(default=True, description="Incluye diploma")
+    incluye_materiales: bool = Field(default=True, description="Incluye materiales")
+    requisitos_admision: Optional[str] = Field(
+        None, max_length=2000, description="Requisitos de admisión"
+    )
 
 
 @router.post("/cursos")
@@ -173,11 +176,13 @@ def ver_curso(curso_id: int, request: Request, sesion: Session = Depends(obtener
 
 
 class ActualizarCursoRequest(BaseModel):
-    titulo: str = None
-    descripcion: str = None
-    precio: int = None
-    estado_inscripcion: str = None
-    imagen_url: str = None
+    titulo: Optional[str] = Field(
+        None, min_length=1, max_length=255, description="Título del curso"
+    )
+    descripcion: Optional[str] = Field(None, max_length=2000, description="Descripción del curso")
+    precio: Optional[int] = Field(None, ge=0, description="Precio del curso")
+    estado_inscripcion: Optional[str] = Field(None, description="Estado de inscripción")
+    imagen_url: Optional[str] = Field(None, max_length=500, description="URL de imagen")
 
 
 @router.put("/cursos/{curso_id}")
@@ -221,8 +226,8 @@ def actualizar_curso(
 
 
 class CrearModuloRequest(BaseModel):
-    titulo: str
-    orden: int
+    titulo: str = Field(..., min_length=1, max_length=255, description="Título del módulo")
+    orden: int = Field(..., ge=0, description="Orden del módulo")
 
 
 @router.post("/cursos/{curso_id}/modulos")
@@ -259,11 +264,13 @@ def crear_modulo(
 
 
 class CrearLeccionRequest(BaseModel):
-    modulo_id: int
-    titulo: str
-    descripcion: str = None
-    duracion_minutos: int = 0
-    orden: int
+    modulo_id: int = Field(..., description="ID del módulo")
+    titulo: str = Field(..., min_length=1, max_length=255, description="Título de la lección")
+    descripcion: Optional[str] = Field(
+        None, max_length=2000, description="Descripción de la lección"
+    )
+    duracion_minutos: int = Field(default=0, ge=0, description="Duración en minutos")
+    orden: int = Field(..., ge=0, description="Orden de la lección")
 
 
 @router.post("/cursos/{curso_id}/lecciones")
