@@ -576,3 +576,160 @@ def rechazar_cambio_precio(curso_id: int, sesion: Session = Depends(obtener_sesi
     sesion.commit()
     logger.info(f"Precio rechazado para curso {curso_id}")
     return {"success": True, "estado_aprobacion": "RECHAZADO"}
+
+
+# ==================== GESTIÓN DE ALUMNOS ====================
+@router.get("/alumnos/{alumno_id}")
+def obtener_alumno(alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Obtener un alumno específico"""
+    verificar_admin(request, sesion)
+
+    from app.modelos import Suscripcion
+
+    alumno = sesion.query(Usuario).filter(Usuario.id == alumno_id).first()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
+    cursos_count = (
+        sesion.query(Suscripcion)
+        .filter(Suscripcion.usuario_id == alumno_id, Suscripcion.estado == "ACTIVO")
+        .count()
+    )
+
+    return {
+        "id": alumno.id,
+        "nombre": alumno.nombre,
+        "apellido": aluno.apellido,
+        "email": alumno.email,
+        "telefono": alumno.telefono,
+        "activo": alumno.activo,
+        "cursos": cursos_count,
+    }
+
+
+@router.put("/alumnos/{alumno_id}")
+def actualizar_alumno(
+    alumno_id: int,
+    nombre: Optional[str] = None,
+    apellido: Optional[str] = None,
+    email: Optional[EmailStr] = None,
+    telefono: Optional[str] = None,
+    request: Request = None,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Actualizar un aluno"""
+    verificar_admin(request, sesion)
+
+    from app.modelos import Suscripcion
+
+    # Verificar que existe
+    if sesion.query(Usuario).filter(Usuario.id == alumno_id).count() == 0:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
+    # Build update query dynamically
+    update_fields = {}
+    if nombre:
+        update_fields["nombre"] = nombre
+    if apellido:
+        update_fields["apellido"] = apellido
+    if email:
+        existe = (
+            sesion.query(Usuario).filter(Usuario.email == email, Usuario.id != alumno_id).first()
+        )
+        if existe:
+            raise HTTPException(status_code=400, detail="El email ya está en uso")
+        update_fields["email"] = email
+    if telefono is not None:
+        update_fields["telefono"] = telefono
+
+    if update_fields:
+        sesion.query(Usuario).filter(Usuario.id == alumno_id).update(update_fields)
+        sesion.commit()
+
+    logger.info(f"Alumno actualizado: {alumno_id}")
+    return {"success": True}
+
+
+@router.delete("/alumnos/{alumno_id}")
+def eliminar_alumno(alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Eliminar un aluno y sus suscripciones"""
+    verificar_admin(request, sesion)
+
+    from app.modelos import Suscripcion, Progreso
+
+    # Obtener alumno
+    alumno = sesion.query(Usuario).filter(Usuario.id == alumno_id).first()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
+    # Eliminar suscripciones
+    suscripciones = sesion.query(Suscripcion).filter(Suscripcion.usuario_id == alumno_id).all()
+    for s in suscripciones:
+        # Eliminar progresos
+        sesion.query(Progreso).filter(Progreso.suscripcion_id == s.id).delete()
+        sesion.delete(s)
+
+    # Eliminar progreso general
+    sesion.query(Progreso).filter(Progreso.usuario_id == alumno_id).delete()
+
+    # Eliminar usuario
+    sesion.delete(alumno)
+    sesion.commit()
+
+    logger.info(f"Alumno eliminado: {alumno_id}")
+    return {"success": True}
+
+
+@router.get("/alumnos/{alumno_id}/suscripciones")
+def obtener_suscripciones_alumno(
+    alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)
+):
+    """Obtener suscripciones de un alumno"""
+    verificar_admin(request, sesion)
+
+    from app.modelos import Suscripcion, Curso
+
+    suscripciones = (
+        sesion.query(Suscripcion, Curso)
+        .join(Curso, Suscripcion.curso_id == Curso.id)
+        .filter(Suscripcion.usuario_id == alumno_id)
+        .all()
+    )
+
+    resultado = []
+    for s, c in suscripciones:
+        resultado.append(
+            {
+                "id": s.id,
+                "curso": c.titulo,
+                "estado": s.estado,
+                "fecha_inicio": s.fecha_inicio.isoformat() if s.fecha_inicio else None,
+                "fecha_fin": s.fecha_fin.isoformat() if s.fecha_fin else None,
+            }
+        )
+
+    return {"suscripciones": resultado}
+
+
+@router.delete("/suscripciones/{suscripcion_id}")
+def eliminar_suscripcion(
+    suscripcion_id: int, request: Request, sesion: Session = Depends(obtener_sesion)
+):
+    """Eliminar una suscripción"""
+    verificar_admin(request, sesion)
+
+    from app.modelos import Suscripcion, Progreso
+
+    suscripcion = sesion.query(Suscripcion).filter(Suscripcion.id == suscripcion_id).first()
+    if not suscripcion:
+        raise HTTPException(status_code=404, detail="Suscripción no encontrada")
+
+    # Eliminar progresos asociados
+    sesion.query(Progreso).filter(Progreso.suscripcion_id == suscripcion_id).delete()
+
+    # Eliminar suscripción
+    sesion.delete(suscripcion)
+    sesion.commit()
+
+    logger.info(f"Suscripción eliminada: {suscripcion_id}")
+    return {"success": True}

@@ -786,14 +786,27 @@ async def admin_alumnos(request: Request, sesion: Session = Depends(obtener_sesi
     if not usuario or usuario.rol.value != "ADMIN":
         return RedirectResponse(url="/login", status_code=303)
 
-    from app.modelos import Usuario, RolUsuario
+    from app.modelos import Usuario, RolUsuario, Suscripcion
 
     # Obtener todos los alumnos como diccionarios
     alumnos_orm = sesion.query(Usuario).filter(Usuario.rol == RolUsuario.ALUMNO).all()
-    lista_alumnos = [
-        {"nombre": a.nombre, "apellido": a.apellido, "email": a.email, "activo": bool(a.activo)}
-        for a in alumnos_orm
-    ]
+    lista_alumnos = []
+    for a in alumnos_orm:
+        cursos_count = (
+            sesion.query(Suscripcion)
+            .filter(Suscripcion.usuario_id == a.id, Suscripcion.estado == "ACTIVO")
+            .count()
+        )
+        lista_alumnos.append(
+            {
+                "id": a.id,
+                "nombre": a.nombre,
+                "apellido": a.apellido,
+                "email": a.email,
+                "activo": bool(a.activo),
+                "cursos": cursos_count,
+            }
+        )
 
     return renderizar(
         request,

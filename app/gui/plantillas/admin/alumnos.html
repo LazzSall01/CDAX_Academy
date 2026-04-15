@@ -26,7 +26,9 @@
                         <tr>
                             <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Nombre</th>
                             <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Cursos</th>
                             <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Estado</th>
+                            <th class="px-6 py-4 text-left font-sans text-sm text-cedax-cream/60 uppercase tracking-wider">Acciones</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-cedax-secondary/10">
@@ -39,11 +41,35 @@
                                 <span class="font-sans text-cedax-cream/70">{{ a.email }}</span>
                             </td>
                             <td class="px-6 py-4">
+                                <span class="font-sans text-cedax-cream/70">{{ a.cursos }}</span>
+                            </td>
+                            <td class="px-6 py-4">
                                 {% if a.activo %}
                                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">Activo</span>
                                 {% else %}
                                 <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-500 text-sm">Inactivo</span>
                                 {% endif %}
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-2">
+                                    <button onclick="editarAlumno({{ a.id }})" class="p-2 rounded-lg hover:bg-cedax-secondary/20 text-cedax-cream/60 hover:text-cedax-secondary">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                        </svg>
+                                    </button>
+                                    {% if a.activo %}
+                                    <button onclick="verSuscripciones({{ a.id }}, '{{ a.email }}')" class="p-2 rounded-lg hover:bg-cedax-secondary/20 text-cedax-cream/60 hover:text-cedax-secondary" title="Ver suscripciones">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
+                                        </svg>
+                                    </button>
+                                    <button onclick="eliminarAlumno({{ a.id }}, '{{ a.email }}')" class="p-2 rounded-lg hover:bg-red-500/20 text-cedax-cream/60 hover:text-red-500">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                        </svg>
+                                    </button>
+                                    {% endif %}
+                                </div>
                             </td>
                         </tr>
                         {% endfor %}
@@ -52,5 +78,153 @@
             </div>
         </div>
     </main>
+    
+    <!-- Modal Editar Alumno -->
+    <div id="modal-editar" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="glass-luxury p-8 rounded-xl w-full max-w-lg animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Editar Alumno</h2>
+                <button onclick="document.getElementById('modal-editar').classList.add('hidden')" class="p-2 hover:bg-cedax-secondary/20 rounded-lg">
+                    <svg class="w-6 h-6 text-cedax-cream/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-editar-alumno" class="space-y-4">
+                <input type="hidden" id="edit-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Nombre</label>
+                        <input type="text" id="edit-nombre" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Apellido</label>
+                        <input type="text" id="edit-apellido" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Email</label>
+                    <input type="email" id="edit-email" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Teléfono</label>
+                    <input type="text" id="edit-telefono" class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <button type="submit" class="btn-luxury w-full py-3 rounded-lg">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Ver Sucripciones -->
+    <div id="modal-suscripciones" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="glass-luxury p-8 rounded-xl w-full max-w-2xl animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Suscripciones</h2>
+                <button onclick="document.getElementById('modal-suscripciones').classList.add('hidden')" class="p-2 hover:bg-cedax-secondary/20 rounded-lg">
+                    <svg class="w-6 h-6 text-cedax-cream/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <div id="lista-suscripciones" class="space-y-3 max-h-96 overflow-y-auto"></div>
+        </div>
+    </div>
 </div>
+
+<script>
+let currentAlumnoId = null;
+
+async function editarAlumno(id) {
+    try {
+        const response = await fetch(`/api/admin/alumnos/${id}`);
+        if (response.ok) {
+            const a = await response.json();
+            document.getElementById('edit-id').value = a.id;
+            document.getElementById('edit-nombre').value = a.nombre || '';
+            document.getElementById('edit-apellido').value = a.apellido || '';
+            document.getElementById('edit-email').value = a.email || '';
+            document.getElementById('edit-telefono').value = a.telefono || '';
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+    } catch (err) { console.error(err); }
+}
+
+document.getElementById('form-editar-alumno').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const id = document.getElementById('edit-id').value;
+    const datos = {
+        nombre: document.getElementById('edit-nombre').value,
+        apellido: document.getElementById('edit-apellido').value,
+        email: document.getElementById('edit-email').value,
+        telefono: document.getElementById('edit-telefono').value
+    };
+    
+    try {
+        const response = await fetch(`/api/admin/alumnos/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(datos)
+        });
+        if (response.ok) location.reload();
+        else alert('Error al actualizar');
+    } catch (err) { console.error(err); }
+});
+
+async function verSuscripciones(usuarioId, email) {
+    currentAlumnoId = usuarioId;
+    try {
+        const response = await fetch(`/api/admin/alumnos/${usuarioId}/suscripciones`);
+        const data = await response.json();
+        const contenedor = document.getElementById('lista-suscripciones');
+        
+        if (data.suscripciones && data.suscripciones.length > 0) {
+            contenedor.innerHTML = data.suscripciones.map(s => `
+                <div class="bg-cedax-primary-dark p-4 rounded-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-white font-sans">${s.curso}</p>
+                        <p class="text-cedax-cream/60 text-sm">${s.fecha_inicio} - ${s.estado}</p>
+                    </div>
+                    <button onclick="eliminarSuscripcion(${s.id}, '${s.curso.replace(/'/g, "\\'")}')" class="px-3 py-1 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500 hover:text-white">Eliminar</button>
+                </div>
+            `).join('');
+        } else {
+            contenedor.innerHTML = '<p class="text-cedax-cream/60">Sin suscripciones</p>';
+        }
+        
+        document.getElementById('modal-suscripciones').classList.remove('hidden');
+    } catch (err) { console.error(err); }
+}
+
+async function eliminarAlumno(id, email) {
+    if (!confirm(`¿Eliminar al alumno ${email}? Esta acción no se puede deshacer.`)) return;
+    const confirmar = prompt(`Escribe "${email}" para confirmar:`);
+    if (confirmar !== email) {
+        alert('Confirmación incorrecta. Alumno no eliminado.');
+        return;
+    }
+    
+    if (!confirm('¿SEGURO? Esta acción eliminará también todas las suscripciones.')) return;
+    
+    try {
+        const response = await fetch(`/api/admin/alumnos/${id}`, {method: 'DELETE'});
+        if (response.ok) location.reload();
+        else alert('Error al eliminar');
+    } catch (err) { console.error(err); }
+}
+
+async function eliminarSuscripcion(id, curso) {
+    if (!confirm(`¿Eliminar suscripción a "${curso}"?`)) return;
+    const confirmar = prompt(`Escribe "ELIMINAR" para confirmar:`);
+    if (confirmar !== 'ELIMINAR') {
+        alert('Confirmación incorrecta.');
+        return;
+    }
+    
+    try {
+        const response = await fetch(`/api/admin/suscripciones/${id}`, {method: 'DELETE'});
+        if (response.ok) verSuscripciones(currentAlumnoId, '');
+        else alert('Error al eliminar');
+    } catch (err) { console.error(err); }
+}
+</script>
 {% endblock %}
