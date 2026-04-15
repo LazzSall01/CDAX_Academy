@@ -119,6 +119,68 @@ def listar_profesores(
     }
 
 
+@router.get("/usuarios/{usuario_id}")
+def obtener_usuario(usuario_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Obtener un usuario específico"""
+    verificar_admin(request, sesion)
+
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    return {
+        "id": usuario.id,
+        "nombre": usuario.nombre,
+        "apellido": usuario.apellido,
+        "email": usuario.email,
+        "telefono": usuario.telefono,
+        "rol": usuario.rol.value,
+        "activo": usuario.activo,
+    }
+
+
+@router.put("/usuarios/{usuario_id}")
+def actualizar_usuario(
+    usuario_id: int,
+    nombre: Optional[str] = None,
+    apellido: Optional[str] = None,
+    email: Optional[EmailStr] = None,
+    contrasena: Optional[str] = None,
+    telefono: Optional[str] = None,
+    request: Request = None,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Actualizar un usuario"""
+    verificar_admin(request, sesion)
+
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    if nombre:
+        usuario.nombre = nombre
+    if apellido:
+        usuario.apellido = apellido
+    if email:
+        # Verificar que el email no esté en uso
+        existe = (
+            sesion.query(Usuario).filter(Usuario.email == email, Usuario.id != usuario_id).first()
+        )
+        if existe:
+            raise HTTPException(status_code=400, detail="El email ya está en uso")
+        usuario.email = email
+    if contrasena:
+        from app.repositorios.usuario_repositorio import hash_contrasena
+
+        usuario.contrasena_hash = hash_contrasena(contrasena)
+    if telefono is not None:
+        usuario.telefono = telefono
+
+    sesion.commit()
+    logger.info(f"Usuario actualizado: {usuario.email}")
+    return {"success": True}
+
+
 @router.post("/usuarios")
 def crear_usuario(
     data: CrearUsuarioRequest, request: Request, sesion: Session = Depends(obtener_sesion)

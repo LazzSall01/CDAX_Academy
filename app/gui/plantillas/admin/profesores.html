@@ -103,6 +103,46 @@
         </div>
     </main>
     
+    <!-- Modal Editar Personal -->
+    <div id="modal-editar" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
+        <div class="glass-luxury p-8 rounded-xl w-full max-w-lg animate-scale-in">
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="font-display text-2xl text-white">Editar Personal</h2>
+                <button onclick="document.getElementById('modal-editar').classList.add('hidden')" class="p-2 hover:bg-cedax-secondary/20 rounded-lg transition-colors">
+                    <svg class="w-6 h-6 text-cedax-cream/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
+            <form id="form-editar-profesor" class="space-y-4">
+                <input type="hidden" name="id" id="edit-id">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Nombre</label>
+                        <input type="text" name="nombre" id="edit-nombre" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                    <div>
+                        <label class="block text-sm text-cedax-cream/60 mb-2">Apellido</label>
+                        <input type="text" name="apellido" id="edit-apellido" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Email</label>
+                    <input type="email" name="email" id="edit-email" required class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Nuevo Password (opcional)</label>
+                    <input type="password" name="contrasena" id="edit-contrasena" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="Dejar vacío para mantener actual">
+                </div>
+                <div>
+                    <label class="block text-sm text-cedax-cream/60 mb-2">Teléfono</label>
+                    <input type="text" name="telefono" id="edit-telefono" class="input-luxury w-full px-4 py-3 rounded-lg">
+                </div>
+                <button type="submit" class="btn-luxury w-full py-3 rounded-lg">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
     <!-- Modal Crear Personal -->
     <div id="modal-crear" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center">
         <div class="glass-luxury p-8 rounded-xl w-full max-w-lg animate-scale-in">
@@ -189,7 +229,22 @@ document.getElementById('form-crear-profesor').addEventListener('submit', async 
 });
 
 async function editarProfesor(id) {
-    console.log('Editar profesor:', id);
+    // Primero obtener datos del usuario
+    try {
+        const response = await fetch(`/api/admin/usuarios/${id}`);
+        if (response.ok) {
+            const usuario = await response.json();
+            document.getElementById('edit-id').value = usuario.id;
+            document.getElementById('edit-nombre').value = usuario.nombre || '';
+            document.getElementById('edit-apellido').value = usuario.apellido || '';
+            document.getElementById('edit-email').value = usuario.email || '';
+            document.getElementById('edit-telefono').value = usuario.telefono || '';
+            document.getElementById('edit-contrasena').value = '';
+            document.getElementById('modal-editar').classList.remove('hidden');
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 async function desactivarProfesor(id) {
@@ -200,5 +255,33 @@ async function desactivarProfesor(id) {
         console.error('Error al desactivar profesor');
     }
 }
+
+document.getElementById('form-editar-profesor').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    const id = formData.get('id');
+    const data = Object.fromEntries(formData);
+    delete data.id;
+    
+    // Limpiar contraseña vacía
+    if (!data.contrasena) delete data.contrasena;
+    
+    try {
+        const response = await fetch(`/api/admin/usuarios/${id}`, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            const error = await response.json();
+            alert(error.detail || 'Error al actualizar');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+});
 </script>
 {% endblock %}
