@@ -65,6 +65,20 @@ app = FastAPI(
     redoc_url="/redoc" if config.MODO_DESARROLLO else None,
 )
 
+# Usar clave de producción si no está en modo desarrollo
+if not config.MODO_DESARROLLO and config.SECRET_KEY_PRODUCTION:
+    import app.config as cfg_module
+
+    cfg_module.Configuracion.__init__ = lambda self, **kwargs: None
+    # Override secret key para producción
+    original_init = config.__class__.__init__
+
+    def production_init(self, **kwargs):
+        original_init(self, **kwargs)
+        self.SECRET_KEY = config.SECRET_KEY_PRODUCTION
+
+    config.__class__.__init__ = production_init
+
 # Configuración CORS basada en modo de desarrollo/producción
 origenes_permitidos = (
     config.CORS_ORIGINS if config.MODO_DESARROLLO else config.CORS_PRODUCTION_ORIGINS

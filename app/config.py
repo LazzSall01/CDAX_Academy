@@ -11,10 +11,12 @@ class Configuracion(BaseSettings):
 
     # Seguridad
     SECRET_KEY: str = "dev-secret-key-change-in-production"
+    SECRET_KEY_PRODUCTION: str = ""  # TODO: Generar clave segura
     MODO_DESARROLLO: bool = True
 
     # Dominio
     DOMAIN: str = "https://pmn8x3l7-8000.usw3.devtunnels.ms"
+    PRODUCTION_DOMAIN: str = ""  # TODO: Agregar dominio de producción
 
     # Google OAuth
     GOOGLE_CLIENT_ID: str = ""
@@ -50,8 +52,12 @@ class Configuracion(BaseSettings):
     CORS_ALLOW_HEADERS: list[str] = ["*"]
 
     # Producción
-    CORS_PRODUCTION_ORIGINS: list[str] = []  # TODO: Agregar dominio de producción
-    SECRET_KEY_PRODUCTION: str = ""  # TODO: Generar clave segura
+    CORS_PRODUCTION_ORIGINS: list[str] = [
+        "https://cdaxacademy.net"
+    ]  # TODO: Agregar dominio de producción
+    SECRET_KEY_PRODUCTION: str = (
+        "d793f6f3242d6a57d50d2b1f6735a74f4abcfa1e5ec31d38e5c64fc171742b66"  # Generated secure key
+    )
 
     class Config:
         env_file = ".env"
