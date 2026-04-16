@@ -62,7 +62,7 @@
                         {% if curso.modalidad %}
                         <div>
                             <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider mb-1">Modalidad</p>
-                            <p class="font-sans text-lg text-cedax-secondary">{{ curso.modalidad }}</p>
+                            <p class="font-sans text-lg text-cedax-secondary">{% if curso.modalidad == 'EN_LINEA' %}ONLINE{% else %}{{ curso.modalidad }}{% endif %}</p>
                         </div>
                         {% endif %}
                         {% if curso.fecha_inicio %}

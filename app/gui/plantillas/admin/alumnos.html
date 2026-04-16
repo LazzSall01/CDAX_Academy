@@ -166,7 +166,7 @@ document.getElementById('form-editar-alumno').addEventListener('submit', async f
             body: JSON.stringify(datos)
         });
         if (response.ok) location.reload();
-        else alert('Error al actualizar');
+        else mostrarMensaje('Error al actualizar', 'error');
     } catch (err) { console.error(err); }
 });
 
@@ -196,34 +196,39 @@ async function verSuscripciones(usuarioId, email) {
 }
 
 async function eliminarAlumno(id, email) {
-    if (!confirm(`¿Eliminar al alumno ${email}? Esta acción no se puede deshacer.`)) return;
-    const confirmar = prompt(`Escribe "${email}" para confirmar:`);
-    if (confirmar !== email) {
-        alert('Confirmación incorrecta. Alumno no eliminado.');
+    const confirmado = await mostrarConfirmacion(`¿Eliminar al alumno ${email}? Esta acción no se puede deshacer.`);
+    if (!confirmado) return;
+    
+    const inputConfirmar = await mostrarInput(`Escribe "${email}" para confirmar:`, 'Confirmar Eliminación');
+    if (inputConfirmar !== email) {
+        mostrarMensaje('Confirmación incorrecta. Alumno no eliminado.', 'error');
         return;
     }
     
-    if (!confirm('¿SEGURO? Esta acción eliminará también todas las suscripciones.')) return;
+    const seguro = await mostrarConfirmacion('¿SEGURO? Esta acción eliminará también todas las suscripciones.');
+    if (!seguro) return;
     
     try {
         const response = await fetch(`/api/admin/alumnos/${id}`, {method: 'DELETE'});
         if (response.ok) location.reload();
-        else alert('Error al eliminar');
+        else mostrarMensaje('Error al eliminar', 'error');
     } catch (err) { console.error(err); }
 }
 
 async function eliminarSuscripcion(id, curso) {
-    if (!confirm(`¿Eliminar suscripción a "${curso}"?`)) return;
-    const confirmar = prompt(`Escribe "ELIMINAR" para confirmar:`);
-    if (confirmar !== 'ELIMINAR') {
-        alert('Confirmación incorrecta.');
+    const confirmados = await mostrarConfirmacion(`¿Eliminar suscripción a "${curso}"?`);
+    if (!confirmados) return;
+    
+    const inputConfirmar = await mostrarInput('Escribe "ELIMINAR" para confirmar:', 'Confirmar Eliminación');
+    if (inputConfirmar !== 'ELIMINAR') {
+        mostrarMensaje('Confirmación incorrecta.', 'error');
         return;
     }
     
     try {
         const response = await fetch(`/api/admin/suscripciones/${id}`, {method: 'DELETE'});
         if (response.ok) verSuscripciones(currentAlumnoId, '');
-        else alert('Error al eliminar');
+        else mostrarMensaje('Error al eliminar', 'error');
     } catch (err) { console.error(err); }
 }
 </script>

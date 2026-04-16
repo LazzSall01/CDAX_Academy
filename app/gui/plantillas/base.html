@@ -511,6 +511,37 @@
 
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
     <script>
+        // Modal functions - no native popups
+        function mostrarModal(titulo, contenido, acciones) {
+            document.getElementById('modal-titulo').textContent = titulo;
+            document.getElementById('modal-contenido').innerHTML = contenido;
+            document.getElementById('modal-acciones').innerHTML = acciones;
+            document.getElementById('modal-generico').classList.remove('hidden');
+        }
+        
+        function cerrarModal() {
+            document.getElementById('modal-generico').classList.add('hidden');
+        }
+        
+        function mostrarMensaje(titulo, mensaje, tipo = 'info') {
+            const color = tipo === 'error' ? 'text-red-500' : (tipo === 'success' ? 'text-green-500' : 'text-cedax-cream');
+            const contenido = '<p class="' + color + '">' + mensaje + '</p>';
+            const acciones = '<button onclick="cerrarModal()" class="btn-luxury px-4 py-2 rounded-lg">Aceptar</button>';
+            mostrarModal(titulo, contenido, acciones);
+        }
+        
+        function mostrarConfirmacion(titulo, mensaje, callback) {
+            const contenido = '<p class="text-cedax-cream">' + mensaje + '</p>';
+            const acciones = '<button onclick="cerrarModal()" class="px-4 py-2 rounded-lg border border-cedax-secondary/40 text-cedax-cream hover:bg-cedax-secondary/20">Cancelar</button> <button onclick="cerrarModal(); ' + callback + '" class="btn-luxury px-4 py-2 rounded-lg">Confirmar</button>';
+            mostrarModal(titulo, contenido, acciones);
+        }
+        
+        function mostrarInput(titulo, placeholder, callback) {
+            const contenido = '<input type="text" id="modal-input-value" class="input-luxury w-full px-4 py-3 rounded-lg" placeholder="' + placeholder + '">';
+            const acciones = '<button onclick="cerrarModal()" class="px-4 py-2 rounded-lg border border-cedax-secondary/40 text-cedax-cream hover:bg-cedax-secondary/20">Cancelar</button> <button onclick="const v=document.getElementById(\'modal-input-value\').value; cerrarModal(); ' + callback.replace('VALOR', 'v') + '" class="btn-luxury px-4 py-2 rounded-lg">Aceptar</button>';
+            mostrarModal(titulo, contenido, acciones);
+        }
+        
         // Intersection Observer para animaciones
         document.addEventListener('DOMContentLoaded', function() {
             const observer = new IntersectionObserver((entries) => {
@@ -526,6 +557,17 @@
             });
         });
     </script>
+    
+    <!-- Modal Generico -->
+    <div id="modal-generico" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" onclick="cerrarModal()"></div>
+        <div class="modal-content relative z-10 glass-luxury p-6 rounded-xl max-w-md mx-auto mt-20">
+            <h2 id="modal-titulo" class="font-display text-xl text-white mb-4"></h2>
+            <div id="modal-contenido" class="text-cedax-cream/70 mb-6"></div>
+            <div id="modal-acciones" class="flex gap-3 justify-end"></div>
+        </div>
+    </div>
+    
     {% block scripts %}{% endblock %}
 
     <!-- WhatsApp Floating Button -->

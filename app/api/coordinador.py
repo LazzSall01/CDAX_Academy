@@ -603,3 +603,65 @@ def actualizar_curso_coordinador_completo(
         "estado_aprobacion": "PENDIENTE",
         "mensaje": "Precio pendiente de aprobación por admin",
     }
+
+
+# ==================== MÓDULOS Y LECCIONES ====================
+class CrearModuloRequest(BaseModel):
+    titulo: str = Field(..., min_length=1, max_length=255)
+    orden: int = Field(..., ge=0)
+
+
+class CrearLeccionRequest(BaseModel):
+    modulo_id: int = Field(...)
+    titulo: str = Field(..., min_length=1, max_length=255)
+    descripcion: Optional[str] = None
+    duracion_minutos: int = Field(default=0)
+    orden: int = Field(..., ge=0)
+
+
+@router.post("/cursos/{curso_id}/modulos")
+def crear_modulo(
+    curso_id: int,
+    data: CrearModuloRequest,
+    request: Request = None,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Crear un módulo"""
+    from app.modelos import Modulo
+
+    verificar_coordinador(request, sesion)
+
+    modulo = Modulo(
+        curso_id=curso_id,
+        titulo=data.titulo,
+        orden=data.orden,
+    )
+    sesion.add(modulo)
+    sesion.commit()
+    logger.info(f"Módulo creado: {data.titulo} en curso {curso_id}")
+    return {"success": True, "modulo_id": modulo.id}
+
+
+@router.post("/cursos/{curso_id}/lecciones")
+def crear_leccion(
+    curso_id: int,
+    data: CrearLeccionRequest,
+    request: Request = None,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Crear una lección"""
+    from app.modelos import Leccion
+
+    verificar_coordinador(request, sesion)
+
+    leccion = Leccion(
+        modulo_id=data.modulo_id,
+        titulo=data.titulo,
+        descripcion=data.descripcion,
+        duracion_minutos=data.duracion_minutos,
+        orden=data.orden,
+    )
+    sesion.add(leccion)
+    sesion.commit()
+    logger.info(f"Lección creada: {data.titulo} en módulo {data.modulo_id}")
+    return {"success": True, "leccion_id": leccion.id}

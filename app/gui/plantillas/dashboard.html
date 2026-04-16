@@ -56,7 +56,7 @@
                     <div class="p-4">
                         <h3 class="font-display text-lg text-cedax-cream mb-2 group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
                         {% if curso.duracion_horas %}
-                        <p class="font-sans text-xs text-cedax-beige/50 mb-2">{{ curso.duracion_horas }} horas • {{ curso.modalidad }}</p>
+                        <p class="font-sans text-xs text-cedax-beige/50 mb-2">{{ curso.duracion_horas }} horas • {% if curso.modalidad == 'EN_LINEA' %}ONLINE{% else %}{{ curso.modalidad }}{% endif %}</p>
                         {% endif %}
                         {% if cursos_comprados_ids and curso.id in cursos_comprados_ids %}
                         <a href="/aula/{{ curso.slug }}" class="btn-luxury w-full py-2 text-xs rounded-sm block text-center">

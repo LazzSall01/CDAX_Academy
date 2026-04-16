@@ -1,23 +1,23 @@
 <!-- Sidebar -->
 <aside class="w-72 fixed left-0 top-0 h-screen bg-gradient-to-b from-cedax-primary to-cedax-primary-dark border-r border-cedax-secondary/10 z-40">
-    <div class="p-6 border-b border-cedax-secondary/10">
+    <div class="p-4 border-b border-cedax-secondary/10">
         <a href="/" class="flex items-center gap-3">
             <img src="/static/logo.jpg" alt="CDAX" class="h-10 w-auto rounded-sm">
             <div>
                 <span class="font-display text-lg font-bold text-gold-luxury">CDAX</span>
-                <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider">Administración</p>
+                <p class="font-sans text-xs text-cedax-cream/40 uppercase tracking-wider">Panel</p>
             </div>
         </a>
     </div>
     
-    <div class="p-6 border-b border-cedax-secondary/10">
+    <div class="p-4 border-b border-cedax-secondary/10">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
-                <span class="font-display text-sm text-cedax-secondary">{{ usuario.nombre[0] }}{{ usuario.apellido[0] }}</span>
+            <div class="w-8 h-8 rounded-full bg-cedax-secondary/20 flex items-center justify-center">
+                <span class="font-display text-xs text-cedax-secondary">{{ usuario.nombre[0] }}{{ usuario.apellido[0] }}</span>
             </div>
             <div>
                 <p class="font-sans text-sm text-white">{{ usuario.nombre }} {{ usuario.apellido }}</p>
-                <p class="font-sans text-xs text-cedax-cream/40">Administrador</p>
+                <p class="font-sans text-xs text-cedax-cream/40">{{ usuario.rol.value }}</p>
             </div>
         </div>
     </div>

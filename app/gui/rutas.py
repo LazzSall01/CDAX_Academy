@@ -11,8 +11,18 @@ router = APIRouter(tags=["GUI"])
 @router.get("/")
 async def landing(request: Request, sesion: Session = Depends(obtener_sesion)):
     logger.info("Cargando página landing")
-    usuario = obtener_usuario_desde_cookie(request, sesion)
-    return renderizar(request, "landing.html", {"usuario": usuario})
+    usuario = None
+    try:
+        usuario = obtener_usuario_desde_cookie(request, sesion)
+    except:
+        pass
+
+    from app.servicios import CursoServicio
+
+    servicio = CursoServicio(sesion)
+    cursos = servicio.obtener_todos_los_cursos()
+
+    return renderizar(request, "landing.html", {"usuario": usuario, "cursos": cursos})
 
 
 @router.get("/cursos")
@@ -89,16 +99,15 @@ async def dashboard(request: Request, sesion: Session = Depends(obtener_sesion))
     servicio = CursoServicio(sesion)
 
     # Para ADMIN/COORDINADOR/PROFESOR: todos los cursos
-    # Para ALUMNO: todos los cursos (con marca de comprados)
+    # Para ALUMNO: solo cursos comprados
     if usuario.rol.value in ["ADMIN", "COORDINADOR", "PROFESOR"]:
         cursos = servicio.obtener_todos_los_cursos()
         cursos_comprados_ids = []
     else:
-        # estudantes ven TODOS os cursos
-        cursos = servicio.obtener_todos_los_cursos()
-        # obtener IDs de cursos comprados para marcar
+        # estudiantes ven SOLO los cursos comprados
         cursos_comprados = servicio.obtener_cursos_comprados(usuario.id)
-        cursos_comprados_ids = [c.id for c in cursos_comprados] if cursos_comprados else []
+        cursos = cursos_comprados if cursos_comprados else []
+        cursos_comprados_ids = [c.id for c in cursos] if cursos else []
 
     return renderizar(
         request,
@@ -282,10 +291,24 @@ async def pago_exitoso(
         if session_obj.payment_status == "paid":
             metadata = dict(session_obj.metadata) if session_obj.metadata else {}
             curso_id = int(metadata.get("curso_id", 0))
+            usuario_id_from_metadata = int(metadata.get("usuario_id", 0))
 
-            logger.info(f"Pago completado: curso={curso_id}, metadata={metadata}")
+            logger.info(
+                f"Pago completado: curso={curso_id}, usuario_id={usuario_id_from_metadata}, metadata={metadata}"
+            )
 
-            if usuario_actual and curso_id:
+            # Buscar usuario desde metadata si no hay cookie
+            if not usuario_actual and usuario_id_from_metadata:
+                from app.modelos import Usuario
+
+                usuario_actual = (
+                    sesion.query(Usuario).filter(Usuario.id == usuario_id_from_metadata).first()
+                )
+                logger.info(
+                    f"Usuario obtenido desde metadata: {usuario_actual.email if usuario_actual else 'None'}"
+                )
+
+            if usuario_actual:
                 tiene_acceso = servicio.verificar_acceso_curso(usuario_actual.id, curso_id)
                 if not tiene_acceso:
                     servicio.verificar_y_activar_suscripcion(
@@ -299,7 +322,26 @@ async def pago_exitoso(
                 else:
                     mensaje = "Ya tienes acceso a este curso"
                     usuario_id = usuario_actual.id
-            elif not usuario_actual:
+            elif usuario_id_from_metadata:
+                # Buscar por ID en metadata
+                from app.modelos import Usuario
+
+                usuario_actual = (
+                    sesion.query(Usuario).filter(Usuario.id == usuario_id_from_metadata).first()
+                )
+                if usuario_actual:
+                    tiene_acceso = servicio.verificar_acceso_curso(usuario_actual.id, curso_id)
+                    if not tiene_acceso:
+                        servicio.verificar_y_activar_suscripcion(
+                            session_id, usuario_actual.id, curso_id
+                        )
+                        mensaje = "Tu pago ha sido procesado exitosamente"
+                        usuario_id = usuario_actual.id
+                    else:
+                        mensaje = "Ya tienes acceso a este curso"
+                else:
+                    logger.warning(f"Usuario {usuario_id_from_metadata} no encontrado")
+            else:
                 return RedirectResponse(
                     url=f"/login?pago_exitoso=1&session_id={session_id}", status_code=303
                 )
@@ -467,14 +509,26 @@ async def profesor_dashboard(request: Request, sesion: Session = Depends(obtener
     if not usuario or usuario.rol.value not in ["ADMIN", "PROFESOR"]:
         return RedirectResponse(url="/login", status_code=303)
 
-    from app.modelos import Curso, CursoInstructor
+    from app.modelos import Curso, CursoInstructor, Instructor
 
-    instructor_cursos = (
-        sesion.query(Curso)
-        .join(CursoInstructor)
-        .filter(CursoInstructor.usuario_id == usuario.id)
-        .all()
-    )
+    # Para PROFESOR: buscar cursos asignados al instructor (por email)
+    if usuario.rol.value == "PROFESOR":
+        instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+        if instructor:
+            instructores_curso = (
+                sesion.query(CursoInstructor)
+                .filter(CursoInstructor.instructor_id == instructor.id)
+                .all()
+            )
+            curso_ids = [ic.curso_id for ic in instructores_curso]
+            instructor_cursos = (
+                sesion.query(Curso).filter(Curso.id.in_(curso_ids)).all() if curso_ids else []
+            )
+        else:
+            instructor_cursos = []
+    else:
+        # ADMIN ve todos los cursos
+        instructor_cursos = sesion.query(Curso).all()
 
     return renderizar(
         request,
@@ -496,15 +550,26 @@ async def profesor_editar_curso(
     if not usuario or usuario.rol.value not in ["ADMIN", "PROFESOR"]:
         return RedirectResponse(url="/login", status_code=303)
 
-    from app.modelos import Curso, Modulo, Leccion, CursoInstructor
+    from app.modelos import Curso, Modulo, Leccion, Instructor, CursoInstructor
 
-    es_propietario = (
-        sesion.query(CursoInstructor)
-        .filter(CursoInstructor.curso_id == curso_id, CursoInstructor.usuario_id == usuario.id)
-        .first()
-    )
-
-    if not es_propietario and usuario.rol.value != "ADMIN":
+    # Verificar que el curso está asignado al instructor
+    instructor = None
+    if usuario.rol.value == "PROFESOR":
+        instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+        if instructor:
+            es_asignado = (
+                sesion.query(CursoInstructor)
+                .filter(
+                    CursoInstructor.curso_id == curso_id,
+                    CursoInstructor.instructor_id == instructor.id,
+                )
+                .first()
+            )
+            if not es_asignado:
+                return RedirectResponse(url="/profesor/dashboard", status_code=303)
+        else:
+            return RedirectResponse(url="/profesor/dashboard", status_code=303)
+    elif usuario.rol.value != "ADMIN":
         return RedirectResponse(url="/profesor/dashboard", status_code=303)
 
     curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
@@ -905,7 +970,13 @@ async def admin_editar_curso(
                 {"id": inst.id, "nombre": f"{inst.nombre} {inst.apellido}", "email": inst.email}
             )
 
-    todos_instructores = sesion.query(Instructor).filter(Instructor.activo == True).all()
+    from app.modelos import Usuario, RolUsuario
+
+    todos_instructores = (
+        sesion.query(Usuario)
+        .filter(Usuario.rol == RolUsuario.PROFESOR, Usuario.activo == True)
+        .all()
+    )
 
     return renderizar(
         request,

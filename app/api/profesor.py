@@ -183,6 +183,8 @@ class ActualizarCursoRequest(BaseModel):
     precio: Optional[int] = Field(None, ge=0, description="Precio del curso")
     estado_inscripcion: Optional[str] = Field(None, description="Estado de inscripción")
     imagen_url: Optional[str] = Field(None, max_length=500, description="URL de imagen")
+    incluye_diploma: Optional[bool] = Field(None, description="Incluye diploma")
+    incluye_materiales: Optional[bool] = Field(None, description="Incluye materiales")
 
 
 @router.put("/cursos/{curso_id}")
@@ -193,35 +195,47 @@ def actualizar_curso(
     sesion: Session = Depends(obtener_sesion),
 ):
     """Actualizar un curso"""
+    from app.modelos import Instructor, CursoInstructor, Usuario, RolUsuario
+
     usuario = verificar_profesor(request, sesion)
 
-    from app.modelos import CursoInstructor
+    # Buscar instructor por email del usuario
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
 
-    es_propietario = (
+    if not instructor:
+        raise HTTPException(status_code=403, detail="Instructor no encontrado")
+
+    # Verificar que el curso está asignado a este instructor
+    es_asignado = (
         sesion.query(CursoInstructor)
-        .filter(CursoInstructor.curso_id == curso_id, CursoInstructor.usuario_id == usuario.id)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
         .first()
     )
 
-    if not es_propietario:
+    if not es_asignado:
         raise HTTPException(status_code=403, detail="No tienes acceso a este curso")
 
     curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
 
-    if data.titulo is not None:
-        curso.titulo = data.titulo
+    # El profesor puede edición estándar (no precio)
     if data.descripcion is not None:
         curso.descripcion = data.descripcion
+    if data.incluye_diploma is not None:
+        curso.incluye_diploma = data.incluye_diploma
+    if data.incluye_materiales is not None:
+        curso.incluye_materiales = data.incluye_materiales
+    # Precio queda pendiente de aprobación
     if data.precio is not None:
-        curso.precio = data.precio
-    if data.estado_inscripcion is not None:
-        curso.estado_inscripcion = data.estado_inscripcion
-    if data.imagen_url is not None:
-        curso.imagen_url = data.imagen_url
+        if data.precio != curso.precio:
+            curso.precio_pendiente = data.precio
+            curso.estado_aprobacion = "PENDIENTE"
+            logger.info(f"Precio cambiado a {data.precio} - pendiente aprobación")
 
     sesion.commit()
 
-    logger.info(f"Curso actualizado: {curso.titulo}")
+    logger.info(f"Curso actualizado por profesor: {curso.titulo}")
     return {"success": True}
 
 
@@ -238,17 +252,26 @@ def crear_modulo(
     sesion: Session = Depends(obtener_sesion),
 ):
     """Crear un módulo en un curso"""
+    from app.modelos import Instructor, CursoInstructor, Usuario, RolUsuario
+
     usuario = verificar_profesor(request, sesion)
 
-    from app.modelos import CursoInstructor
+    # Buscar instructor por email
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
 
-    es_propietario = (
+    if not instructor:
+        raise HTTPException(status_code=403, detail="Instructor no encontrado")
+
+    # Verificar asignación
+    es_asignado = (
         sesion.query(CursoInstructor)
-        .filter(CursoInstructor.curso_id == curso_id, CursoInstructor.usuario_id == usuario.id)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
         .first()
     )
 
-    if not es_propietario:
+    if not es_asignado:
         raise HTTPException(status_code=403, detail="No tienes acceso a este curso")
 
     modulo = Modulo(
@@ -281,17 +304,26 @@ def crear_leccion(
     sesion: Session = Depends(obtener_sesion),
 ):
     """Crear una lección en un módulo"""
+    from app.modelos import Instructor, CursoInstructor
+
     usuario = verificar_profesor(request, sesion)
 
-    from app.modelos import CursoInstructor
+    # Buscar instructor
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
 
-    es_propietario = (
+    if not instructor:
+        raise HTTPException(status_code=403, detail="Instructor no encontrado")
+
+    # Verificar asignación
+    es_asignado = (
         sesion.query(CursoInstructor)
-        .filter(CursoInstructor.curso_id == curso_id, CursoInstructor.usuario_id == usuario.id)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
         .first()
     )
 
-    if not es_propietario:
+    if not es_asignado:
         raise HTTPException(status_code=403, detail="No tienes acceso a este curso")
 
     leccion = Leccion(

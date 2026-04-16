@@ -49,16 +49,16 @@
         <!-- Stats -->
         <div class="grid grid-cols-3 gap-8 mt-20 max-w-2xl mx-auto animate-fade-in-up animate-delay-5">
             <div class="text-center">
-                <p class="font-display text-4xl text-gold-luxury">15+</p>
-                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Años de Experiencia</p>
+                <p class="font-display text-4xl text-gold-luxury">1</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Curso</p>
             </div>
             <div class="text-center">
-                <p class="font-display text-4xl text-gold-luxury">2000+</p>
-                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Profesionales Formados</p>
+                <p class="font-display text-4xl text-gold-luxury">1</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Diplomado</p>
             </div>
             <div class="text-center">
-                <p class="font-display text-4xl text-gold-luxury">50+</p>
-                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Programas de Excelencia</p>
+                <p class="font-display text-4xl text-gold-luxury">1</p>
+                <p class="font-sans text-xs text-luxury-cream/40 tracking-widest uppercase mt-2">Especialidad</p>
             </div>
         </div>
     </div>
@@ -97,7 +97,7 @@
                          class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
                     {% else %}
                     <div class="w-full h-full bg-gradient-to-br from-luxury-graphite to-luxury-charcoal flex items-center justify-center">
-                        <span class="font-display text-6xl text-luxury-gold/20">{{ loop.index }}</span>
+                        <span class="font-display text-4xl text-luxury-gold/20">CDAX</span>
                     </div>
                     {% endif %}
                     <div class="absolute inset-0 bg-gradient-to-t from-luxury-black via-transparent to-transparent"></div>
@@ -141,7 +141,7 @@
                         {% if curso.modalidad %}
                         <span class="flex items-center gap-1">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                            {{ curso.modalidad }}
+                            {% if curso.modalidad == 'EN_LINEA' %}ONLINE{% else %}{{ curso.modalidad }}{% endif %}
                         </span>
                         {% endif %}
                         {% if curso.fecha_inicio %}
@@ -168,9 +168,17 @@
         </div>
         {% else %}
         <div class="text-center py-20">
-            <p class="font-sans text-luxury-cream/60">Pronto announcesmos nuevos programas.</p>
+            <p class="font-sans text-luxury-cream/60">Pronto announcements nuevos programas.</p>
         </div>
         {% endif %}
+        
+        <!-- Botón Más Programas -->
+        <div class="text-center mt-12">
+            <a href="/cursos" class="btn-luxury px-8 py-3 text-sm rounded-sm inline-flex items-center gap-2">
+                Ver Todos los Programas
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+            </a>
+        </div>
     </div>
 </section>
 

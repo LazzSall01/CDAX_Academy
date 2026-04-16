@@ -87,7 +87,7 @@
                             <div>
                                 <label class="block text-sm text-cedax-cream/60 mb-2">Modalidad</label>
                                 <select id="modalidad" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
-                                    <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>En Línea</option>
+                                    <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>ONLINE</option>
                                     <option value="PRESENCIAL" {% if curso.modalidad == 'PRESENCIAL' %}selected{% endif %}>Presencial</option>
                                     <option value="HIBRIDO" {% if curso.modalidad == 'HIBRIDO' %}selected{% endif %}>Híbrido</option>
                                 </select>
@@ -235,8 +235,8 @@ async function guardarCurso() {
             body: JSON.stringify(datos)
         });
         if (response.ok) {
-            alert('Cambios guardados');
-            location.reload();
+            mostrarMensaje('Cambios guardados', 'success');
+            setTimeout(() => location.reload(), 1000);
         }
     } catch (err) {
         console.error(err);
@@ -253,43 +253,123 @@ async function toggleActivo() {
 async function asignarInstructor() {
     const instructorId = document.getElementById('nuevo-instructor').value;
     if (!instructorId) return;
-    alert('Funcionalidad de asignar instructor - en desarrollo');
+    
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/asignar-instructor`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({instructor_id: parseInt(instructorId)})
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            const err = await response.json();
+            mostrarMensaje(err.detail || 'Error al asignar', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-function removerInstructor(id) {
-    alert('Funcionalidad de remover instructor - en desarrollo');
+async function removerInstructor(id) {
+    const confirmado = await mostrarConfirmacion('¿Remover este instructor del programa?');
+    if (!confirmado) return;
+    
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/remover-instructor`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({instructor_id: id})
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            const err = await response.json();
+            mostrarMensaje(err.detail || 'Error al remover', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
-function agregarModulo() {
-    alert('Funcionalidad de agregar módulo - en desarrollo');
+async function agregarModulo() {
+    const titulo = await mostrarInput('Título del módulo:', 'Agregar Módulo');
+    if (!titulo) return;
+    
+    const orden = {{ modulos|length }} + 1;
+    
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/modulos`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({titulo: titulo, orden: orden})
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            mostrarMensaje('Error al crear módulo', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
+async function agregarLeccion(moduloId) {
+    const titulo = await mostrarInput('Título de la lección:', 'Agregar Lección');
+    if (!titulo) return;
+    
+    const orden = 1;
+    
+    try {
+        const response = await fetch(`/api/admin/cursos/${cursoId}/lecciones`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                modulo_id: moduloId,
+                titulo: titulo,
+                orden: orden
+            })
+        });
+        
+        if (response.ok) {
+            location.reload();
+        } else {
+            mostrarMensaje('Error al crear lección', 'error');
+        }
+    } catch (err) {
+        console.error(err);
+    }
 }
 
 async function aprobarPrecio() {
-    if (!confirm('¿Aprobar el cambio de precio?')) return;
+    const confirmado = await mostrarConfirmacion('¿Aprobar el cambio de precio?');
+    if (!confirmado) return;
     try {
         const response = await fetch(`/api/admin/cursos/${cursoId}/aprobar`, {method: 'POST'});
         if (response.ok) {
-            alert('Precio aprobado');
-            location.reload();
+            mostrarMensaje('Precio aprobado', 'success');
+            setTimeout(() => location.reload(), 1000);
         }
     } catch (err) {}
 }
 
 async function rechazarPrecio() {
-    if (!confirm('¿Rechazar el cambio de precio?')) return;
+    const confirmado = await mostrarConfirmacion('¿Rechazar el cambio de precio?');
+    if (!confirmado) return;
     try {
         const response = await fetch(`/api/admin/cursos/${cursoId}/rechazar`, {method: 'POST'});
         if (response.ok) {
-            alert('Precio rechazado');
-            location.reload();
+            mostrarMensaje('Precio rechazado', 'success');
+            setTimeout(() => location.reload(), 1000);
         }
     } catch (err) {}
 }
 
-function eliminarPrograma() {
-    if (confirm('¿Eliminar este programa? Esta acción no se puede deshacer.')) {
-        alert('Funcionalidad de eliminar programa - en desarrollo');
-    }
+async function eliminarPrograma() {
+    const confirmado = await mostrarConfirmacion('¿Eliminar este programa? Esta acción no se puede deshacer.');
+    if (!confirmado) return;
+    mostrarMensaje('Funcionalidad de eliminar programa - en desarrollo', 'info');
 }
 </script>
 {% endblock %}

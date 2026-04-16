@@ -92,6 +92,12 @@
                            class="input-luxury w-full px-4 py-3 rounded-sm font-sans text-sm"
                            placeholder="••••••••">
                 </div>
+                <div>
+                    <label class="block font-sans text-sm text-cedax-cream/70 mb-2">Confirmar Contraseña</label>
+                    <input type="password" name="contrasena_confirmar" required 
+                           class="input-luxury w-full px-4 py-3 rounded-sm font-sans text-sm"
+                           placeholder="••••••••">
+                </div>
                 <button type="submit" class="btn-luxury w-full py-3 text-sm rounded-sm">
                     Crear Cuenta
                 </button>
@@ -107,11 +113,7 @@
                 </div>
             </div>
             
-            <!-- Botón Demo -->
-            <a href="/auth/demo" class="flex items-center justify-center gap-3 w-full py-3 border border-cedax-secondary/40 rounded-sm hover:bg-cedax-secondary/15 transition-all group">
-                <svg class="w-5 h-5 text-cedax-secondary group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span class="font-sans text-sm text-cedax-secondary">Modo Demo</span>
-            </a>
+
         </div>
         
         <!-- Footer del login -->
@@ -122,6 +124,15 @@
 </div>
 
 <script>
+document.getElementById('form-registro').addEventListener('submit', function(e) {
+    const pass = document.querySelector('input[name="contrasena"]').value;
+    const pass2 = document.querySelector('input[name="contrasena_confirmar"]').value;
+    if (pass !== pass2) {
+        e.preventDefault();
+        mostrarMensaje('Las contraseñas no coinciden', 'error');
+    }
+});
+
 function showTab(tab) {
     const loginTab = document.getElementById('tab-login');
     const registroTab = document.getElementById('tab-registro');

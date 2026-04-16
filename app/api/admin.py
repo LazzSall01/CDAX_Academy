@@ -578,6 +578,113 @@ def rechazar_cambio_precio(curso_id: int, sesion: Session = Depends(obtener_sesi
     return {"success": True, "estado_aprobacion": "RECHAZADO"}
 
 
+@router.post("/cursos/{curso_id}/asignar-instructor")
+def asignar_instructor(
+    curso_id: int,
+    datos: dict,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Asignar un instructor a un curso"""
+    from app.modelos import Curso, Instructor, CursoInstructor, Usuario, RolUsuario
+
+    verificar_admin(request, sesion)
+
+    usuario_id = datos.get("instructor_id")
+    if not usuario_id:
+        raise HTTPException(status_code=400, detail="Se requiere instructor_id")
+
+    # Verificar que el usuario existe y es PROFESOR
+    usuario = (
+        sesion.query(Usuario)
+        .filter(Usuario.id == usuario_id, Usuario.rol == RolUsuario.PROFESOR)
+        .first()
+    )
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+
+    # Verificar que el curso existe
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    # Verificar si ya está instructor creado, si no crearlo
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+    if not instructor:
+        instructor = Instructor(
+            nombre=usuario.nombre, apellido=usuario.apellido, email=usuario.email, activo=True
+        )
+        sesion.add(instructor)
+        sesion.flush()
+        logger.info(f"Instructor creado desde usuario {usuario_id}")
+
+    # Verificar si ya está asignado
+    existe = (
+        sesion.query(CursoInstructor)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
+        .first()
+    )
+    if existe:
+        raise HTTPException(status_code=400, detail="El instructor ya está asignado")
+
+    # Crear la relación
+    rel = CursoInstructor(curso_id=curso_id, instructor_id=instructor.id)
+    sesion.add(rel)
+    sesion.commit()
+
+    logger.info(f"Instructor {instructor.id} asignado al curso {curso_id}")
+    return {"success": True}
+
+
+@router.post("/cursos/{curso_id}/remover-instructor")
+def remover_instructor(
+    curso_id: int,
+    datos: dict,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Remover un instructor de un curso"""
+    from app.modelos import Instructor, Usuario, RolUsuario
+
+    verificar_admin(request, sesion)
+
+    usuario_id = datos.get("instructor_id")
+    if not usuario_id:
+        raise HTTPException(status_code=400, detail="Se requiere instructor_id")
+
+    # Obtener el email del instructor
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # Buscar instructor en tabla instructores
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+    if not instructor:
+        raise HTTPException(status_code=404, detail="Instructor no encontrado")
+
+    # Buscar y eliminar la relación
+    from app.modelos import CursoInstructor
+
+    rel = (
+        sesion.query(CursoInstructor)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
+        .first()
+    )
+
+    if not rel:
+        raise HTTPException(status_code=404, detail="Instructor no asignado a este curso")
+
+    sesion.delete(rel)
+    sesion.commit()
+
+    logger.info(f"Instructor {instructor.id} removido del curso {curso_id}")
+    return {"success": True}
+
+
 # ==================== GESTIÓN DE ALUMNOS ====================
 @router.get("/alumnos/{alumno_id}")
 def obtener_alumno(alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
@@ -733,3 +840,65 @@ def eliminar_suscripcion(
 
     logger.info(f"Suscripción eliminada: {suscripcion_id}")
     return {"success": True}
+
+
+# ==================== MÓDULOS Y LECCIONES ====================
+class CrearModuloRequest(BaseModel):
+    titulo: str = Field(..., min_length=1, max_length=255)
+    orden: int = Field(..., ge=0)
+
+
+class CrearLeccionRequest(BaseModel):
+    modulo_id: int = Field(...)
+    titulo: str = Field(..., min_length=1, max_length=255)
+    descripcion: Optional[str] = None
+    duracion_minutos: int = Field(default=0)
+    orden: int = Field(..., ge=0)
+
+
+@router.post("/cursos/{curso_id}/modulos")
+def crear_modulo(
+    curso_id: int,
+    data: CrearModuloRequest,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Crear un módulo"""
+    from app.modelos import Modulo
+
+    verificar_admin(request, sesion)
+
+    modulo = Modulo(
+        curso_id=curso_id,
+        titulo=data.titulo,
+        orden=data.orden,
+    )
+    sesion.add(modulo)
+    sesion.commit()
+    logger.info(f"Módulo creado por admin: {data.titulo}")
+    return {"success": True, "modulo_id": modulo.id}
+
+
+@router.post("/cursos/{curso_id}/lecciones")
+def crear_leccion(
+    curso_id: int,
+    data: CrearLeccionRequest,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Crear una lección"""
+    from app.modelos import Leccion
+
+    verificar_admin(request, sesion)
+
+    leccion = Leccion(
+        modulo_id=data.modulo_id,
+        titulo=data.titulo,
+        descripcion=data.descripcion,
+        duracion_minutos=data.duracion_minutos,
+        orden=data.orden,
+    )
+    sesion.add(leccion)
+    sesion.commit()
+    logger.info(f"Lección creada por admin: {data.titulo}")
+    return {"success": True, "leccion_id": leccion.id}
