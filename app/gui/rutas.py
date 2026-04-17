@@ -784,6 +784,27 @@ async def coordinator_editar_curso(
     if not curso:
         return RedirectResponse(url="/coordinador/cursos", status_code=303)
 
+    # Obtener instructores asignados al curso
+    from app.modelos import Instructor, CursoInstructor, Usuario, RolUsuario
+
+    instructores_curso = (
+        sesion.query(CursoInstructor).filter(CursoInstructor.curso_id == curso_id).all()
+    )
+    instructores_data = []
+    for ci in instructores_curso:
+        inst = sesion.query(Instructor).filter(Instructor.id == ci.instructor_id).first()
+        if inst:
+            instructores_data.append(
+                {"id": inst.id, "nombre": f"{inst.nombre} {inst.apellido}", "email": inst.email}
+            )
+
+    # Obtener todos los profesores disponibles
+    todos_instructores = (
+        sesion.query(Usuario)
+        .filter(Usuario.rol == RolUsuario.PROFESOR, Usuario.activo == True)
+        .all()
+    )
+
     modulos = sesion.query(Modulo).filter(Modulo.curso_id == curso_id).order_by(Modulo.orden).all()
     modulos_data = []
     for m in modulos:
@@ -838,6 +859,11 @@ async def coordinator_editar_curso(
                 "capacidad_maxima": curso.capacidad_maxima,
             },
             "modulos": modulos_data,
+            "instructores": instructores_data,
+            "todos_instructores": [
+                {"id": u.id, "nombre": u.nombre + " " + u.apellido, "email": u.email}
+                for u in todos_instructores
+            ],
         },
     )
 

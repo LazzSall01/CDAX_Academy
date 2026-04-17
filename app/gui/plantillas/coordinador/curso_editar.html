@@ -15,7 +15,7 @@
             <button onclick="guardarCurso()" class="btn-luxury px-4 py-2 rounded-lg">Guardar Cambios</button>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div class="lg:col-span-2 space-y-6">
                 <div class="glass-luxury p-6 rounded-lg">
                     <h2 class="font-display text-xl text-white mb-4">Datos del Programa</h2>
@@ -35,55 +35,12 @@
                             <p class="text-yellow-500 text-xs mt-1">Nuevo precio pendiente: ${{ curso.precio_pendiente }} (esperando aprobación)</p>
                             {% endif %}
                         </div>
-                    </div>
-                </div>
-
-                <div class="glass-luxury p-6 rounded-lg">
-                    <h2 class="font-display text-xl text-white mb-4">Módulos y Lecciones</h2>
-                    <div id="modulos-container" class="space-y-4">
-                        {% for m in modulos %}
-                        <div class="border border-cedax-secondary/20 rounded-lg p-4">
-                            <div class="flex items-center justify-between mb-3">
-                                <input type="text" value="{{ m.titulo }}" class="bg-transparent text-white font-display text-lg w-full" placeholder="Título del módulo">
-                                <span class="text-cedax-cream/40 text-sm">Orden: {{ m.orden }}</span>
-                            </div>
-                            <div class="pl-4 space-y-2">
-                                {% for l in m.lecciones %}
-                                <div class="flex items-center gap-3 bg-cedax-primary-dark/50 p-3 rounded-lg">
-                                    <div class="flex-1">
-                                        <span class="text-cedax-cream">{{ l.titulo }}</span>
-                                    </div>
-                                    <div class="flex items-center gap-2">
-                                        {% if l.bunny_video_id %}
-                                        <span class="px-2 py-1 bg-green-500/20 text-green-500 text-xs rounded">Bunny</span>
-                                        {% elif l.video_url %}
-                                        <span class="px-2 py-1 bg-blue-500/20 text-blue-500 text-xs rounded">Video</span>
-                                        {% else %}
-                                        <span class="px-2 py-1 bg-gray-500/20 text-gray-500 text-xs rounded">Sin Video</span>
-                                        {% endif %}
-                                        <button onclick="subirVideo({{ l.id }})" class="text-cedax-secondary hover:text-cedax-secondary/80 text-sm">Subir Video</button>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            <button onclick="agregarLeccion({{ m.id }})" class="mt-2 text-sm text-cedax-secondary hover:text-cedax-secondary/80">+ Agregar Lección</button>
-                        </div>
-                        {% endfor %}
-                    </div>
-                    <button onclick="agregarModulo()" class="mt-4 text-sm text-cedax-secondary hover:text-cedax-secondary/80">+ Agregar Módulo</button>
-                </div>
-            </div>
-
-            <div class="space-y-6">
-                <div class="glass-luxury p-6 rounded-lg">
-                    <h2 class="font-display text-xl text-white mb-4">Configuración</h2>
-                    <div class="space-y-4">
                         <div>
                             <label class="block text-sm text-cedax-cream/60 mb-2">Modalidad</label>
-                            <select id="modalidad" class="w-full px-4 py-3 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream font-sans">
-                                <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>ONLINE</option>
-                                <option value="PRESENCIAL" {% if curso.modalidad == 'PRESENCIAL' %}selected{% endif %}>PRESENCIAL</option>
-                                <option value="HIBRIDO" {% if curso.modalidad == 'HIBRIDO' %}selected{% endif %}>HIBRIDO</option>
+                            <select id="modalidad" class="input-luxury w-full px-4 py-3 rounded-lg">
+                                <option value="EN_LINEA" {% if curso.modalidad == 'EN_LINEA' %}selected{% endif %}>En línea</option>
+                                <option value="PRESENCIAL" {% if curso.modalidad == 'PRESENCIAL' %}selected{% endif %}>Presencial</option>
+                                <option value="HIBRIDO" {% if curso.modalidad == 'HIBRIDO' %}selected{% endif %}>Híbrido</option>
                             </select>
                         </div>
                         <div>
@@ -107,6 +64,29 @@
                 <div class="glass-luxury p-6 rounded-lg">
                     <h2 class="font-display text-xl text-white mb-4">Nota</h2>
                     <p class="text-cedax-cream/60 text-sm">El precio queda pendiente de aprobación por el administrador.</p>
+                </div>
+            </div>
+            
+            <!-- Columna derecha -->
+            <div class="space-y-6">
+                <!-- Instructores -->
+                <div class="glass-luxury p-6 rounded-lg">
+                    <h2 class="font-display text-xl text-white mb-4">Instructores</h2>
+                    <div id="instructores-list" class="space-y-2 mb-4">
+                        {% for inst in instructores %}
+                        <div class="flex items-center justify-between bg-cedax-primary-dark p-2 rounded-lg">
+                            <span class="text-cedax-cream text-sm">{{ inst.nombre }}</span>
+                            <button onclick="removerInstructor({{ inst.id }})" class="text-red-500 hover:text-red-400">×</button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    <select id="nuevo-instructor" class="w-full px-4 py-2 rounded-lg bg-cedax-primary-dark border border-cedax-secondary text-cedax-cream text-sm mb-2">
+                        <option value="">Seleccionar instructor...</option>
+                        {% for u in todos_instructores %}
+                        <option value="{{ u.id }}">{{ u.nombre }} ({{ u.email }})</option>
+                        {% endfor %}
+                    </select>
+                    <button onclick="asignarInstructor()" class="w-full py-2 rounded-lg bg-cedax-secondary/20 text-cedax-secondary text-sm">Asignar Instructor</button>
                 </div>
             </div>
         </div>
@@ -182,12 +162,54 @@ async function crearLeccion(moduloId, titulo) {
         });
         if (response.ok) {
             location.reload();
+        }
+    } catch (err) {}
+}
+
+async function asignarInstructor() {
+    const instructorId = document.getElementById('nuevo-instructor').value;
+    console.log('cursoId:', cursoId, 'instructorId:', instructorId);
+    if (!instructorId) {
+        alert('Selecciona un instructor');
+        return;
+    }
+    try {
+        const response = await fetch(`/api/coordinador/cursos/${cursoId}/asignar-instructor`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({instructor_id: parseInt(instructorId)})
+        });
+        console.log('Response:', response.status);
+        if (response.ok) {
+            location.reload();
         } else {
-            mostrarMensaje('Error', 'Error al crear lección', 'error');
+            const err = await response.json();
+            console.log('Error:', err);
+            alert(err.detail || 'Error al asignar');
         }
     } catch (err) {
         console.error(err);
-        mostrarMensaje('Error', 'Error al crear lección', 'error');
+        alert('Error de conexión');
+    }
+}
+
+async function removerInstructor(id) {
+    const confirmado = await mostrarConfirmacion('¿Remover este instructor del programa?');
+    if (!confirmado) return;
+    try {
+        const response = await fetch(`/api/coordinador/cursos/${cursoId}/remover-instructor`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({instructor_id: id})
+        });
+        if (response.ok) {
+            location.reload();
+        } else {
+            const err = await response.json();
+            mostrarMensaje('Error', err.detail || 'Error al remover', 'error');
+        }
+    } catch (err) {
+        console.error(err);
     }
 }
 

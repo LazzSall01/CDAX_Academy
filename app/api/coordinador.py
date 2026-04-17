@@ -664,6 +664,139 @@ def toggle_curso(curso_id: int, request: Request, sesion: Session = Depends(obte
     return {"success": True, "activo": curso.activo}
 
 
+@router.post("/cursos/{curso_id}/asignar-instructor")
+def asignar_instructor(
+    curso_id: int,
+    datos: dict,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Asignar un instructor a un curso"""
+    from app.modelos import Curso, Instructor, CursoInstructor, Usuario, RolUsuario
+
+    verificar_coordinador(request, sesion)
+
+    usuario_id = datos.get("instructor_id")
+    if not usuario_id:
+        raise HTTPException(status_code=400, detail="Se requiere instructor_id")
+
+    usuario = (
+        sesion.query(Usuario)
+        .filter(Usuario.id == usuario_id, Usuario.rol == RolUsuario.PROFESOR)
+        .first()
+    )
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+    if not instructor:
+        instructor = Instructor(
+            nombre=usuario.nombre, apellido=usuario.apellido, email=usuario.email, activo=True
+        )
+        sesion.add(instructor)
+        sesion.flush()
+
+    existe = (
+        sesion.query(CursoInstructor)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
+        .first()
+    )
+    if existe:
+        raise HTTPException(status_code=400, detail="El instructor ya está asignado")
+
+    rel = CursoInstructor(curso_id=curso_id, instructor_id=instructor.id)
+    sesion.add(rel)
+    sesion.commit()
+
+    logger.info(f"Instructor {instructor.id} asignado al curso {curso_id}")
+    return {"success": True}
+
+
+@router.post("/cursos/{curso_id}/remover-instructor")
+def remover_instructor(
+    curso_id: int,
+    datos: dict,
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Remover un instructor de un curso"""
+    from app.modelos import Curso, Instructor, CursoInstructor
+
+    verificar_coordinador(request, sesion)
+
+    usuario_id = datos.get("instructor_id")
+    if not usuario_id:
+        raise HTTPException(status_code=400, detail="Se requiere instructor_id")
+
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    instructor = sesion.query(Instructor).filter(Instructor.email == usuario.email).first()
+    if not instructor:
+        raise HTTPException(status_code=404, detail="Instructor no encontrado")
+
+    rel = (
+        sesion.query(CursoInstructor)
+        .filter(
+            CursoInstructor.curso_id == curso_id, CursoInstructor.instructor_id == instructor.id
+        )
+        .first()
+    )
+    if not rel:
+        raise HTTPException(status_code=404, detail="Instructor no asignado a este curso")
+
+    sesion.delete(rel)
+    sesion.commit()
+
+    logger.info(f"Instructor {instructor.id} removido del curso {curso_id}")
+    return {"success": True}
+
+
+@router.get("/cursos/{curso_id}/instructores")
+def listar_instructores_curso(
+    curso_id: int, request: Request, sesion: Session = Depends(obtener_sesion)
+):
+    """Listar instructores de un curso"""
+    from app.modelos import Curso, Instructor, CursoInstructor
+
+    verificar_coordinador(request, sesion)
+
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+
+    relaciones = sesion.query(CursoInstructor).filter(CursoInstructor.curso_id == curso_id).all()
+
+    instructores_data = []
+    for ci in relaciones:
+        inst = sesion.query(Instructor).filter(Instructor.id == ci.instructor_id).first()
+        if inst:
+            instructores_data.append({"id": inst.id, "nombre": f"{inst.nombre} {inst.apellido}"})
+
+    return {"instructores": instructores_data}
+
+
+@router.get("/profesores")
+def listar_profesores(
+    request: Request,
+    sesion: Session = Depends(obtener_sesion),
+):
+    """Listar todos los profesores"""
+    verificar_coordinador(request, sesion)
+    profesores = sesion.query(Usuario).filter(Usuario.rol == RolUsuario.PROFESOR).all()
+    return [
+        {"id": p.id, "nombre": p.nombre, "apellido": p.apellido, "email": p.email}
+        for p in profesores
+    ]
+
+
 @router.put("/cursos/{curso_id}")
 def actualizar_curso_coordinador_completo(
     curso_id: int,

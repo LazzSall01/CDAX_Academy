@@ -99,7 +99,7 @@
         <!-- Lista de Cursos como Widgets Horizontales -->
         <div class="space-y-4" id="cursos-lista">
             {% for curso in cursos %}
-            <div onclick="window.location.href='/coordinador/curso/{{ curso.id }}'" class="glass-luxury rounded-lg p-4 cursor-pointer hover:border-cedax-secondary/40 transition-all duration-300 group" data-tipo="{{ curso.tipo_programa }}">
+            <div class="glass-luxury rounded-lg p-4 cursor-pointer hover:border-cedax-secondary/40 transition-all duration-300 group" data-tipo="{{ curso.tipo_programa }}">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-cedax-primary-dark rounded-lg flex items-center justify-center flex-shrink-0">
                         <svg class="w-8 h-8 text-cedax-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -109,9 +109,6 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="badge-luxury text-xs">{{ curso.tipo_programa }}</span>
-                            <button onclick="togglePrograma({{ curso.id }})" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors {% if curso.activo %}bg-green-500{% else %}bg-red-500{% endif %}">
-                                <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform {% if curso.activo %}translate-x-5{% else %}translate-x-1{% endif %}"></span>
-                            </button>
                         </div>
                         <h3 class="font-display text-lg text-white truncate group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
                         <p class="text-sm text-cedax-cream/50 truncate">{{ curso.descripcion[:80] if curso.descripcion else 'Sin descripción' }}</p>
@@ -130,7 +127,16 @@
                             <span class="text-xs">Alumnos</span>
                         </div>
                     </div>
-                    <div class="flex-shrink-0">
+                    <div class="flex-shrink-0 flex items-center gap-3">
+                        <!-- Toggle e editar separados -->
+                        <button onclick="togglePrograma({{ curso.id }})" title="{{ 'Desactivar' if curso.activo else 'Activar' }}" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors {% if curso.activo %}bg-green-500{% else %}bg-red-500{% endif %}">
+                            <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform {% if curso.activo %}translate-x-5{% else %}translate-x-1{% endif %}"></span>
+                        </button>
+                        <button onclick="window.location.href='/coordinador/curso/{{ curso.id }}'" class="p-2 rounded-lg hover:bg-cedax-secondary/20 text-cedax-cream/60 hover:text-cedax-secondary">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                        </button>
                         <span class="font-display text-xl text-cedax-secondary">${{ curso.precio }}</span>
                     </div>
                 </div>
