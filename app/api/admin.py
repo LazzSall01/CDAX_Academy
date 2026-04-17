@@ -27,6 +27,9 @@ def verificar_admin(request: Request, sesion: Session = Depends(obtener_sesion))
 class CrearUsuarioRequest(BaseModel):
     email: EmailStr = Field(..., description="Email del usuario")
     contrasena: str = Field(..., min_length=6, max_length=100, description="Contraseña")
+    contrasena_confirmar: Optional[str] = Field(
+        None, description="Confirmar contraseña (para validación)"
+    )
     nombre: str = Field(..., min_length=1, max_length=100, description="Nombre")
     apellido: str = Field(..., min_length=1, max_length=100, description="Apellido")
     usuario: Optional[str] = Field(
@@ -239,23 +242,23 @@ def crear_usuario(
 def eliminar_profesor(
     profesor_id: int, request: Request, sesion: Session = Depends(obtener_sesion)
 ):
-    """Desactivar un profesor"""
-    usuario = verificar_admin(request, sesion)
+    """Desactivar un usuario (profesor o coordinador)"""
+    verificar_admin(request, sesion)
 
-    profesor = (
-        sesion.query(Usuario)
-        .filter(Usuario.id == profesor_id, Usuario.rol == RolUsuario.PROFESOR)
-        .first()
-    )
+    usuario = sesion.query(Usuario).filter(Usuario.id == profesor_id).first()
 
-    if not profesor:
-        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
 
-    profesor.activo = False
+    # No permitir eliminar al admin
+    if usuario.rol == RolUsuario.ADMIN:
+        raise HTTPException(status_code=400, detail="No puedes eliminar al administrador")
+
+    usuario.activo = False
     sesion.commit()
 
-    logger.info(f"Profesor desactivado: {profesor.email}")
-    return {"success": True, "message": "Profesor desactivado correctamente"}
+    logger.info(f"Usuario desactivado: {usuario.email}")
+    return {"success": True, "message": "Usuario desactivado correctamente"}
 
 
 @router.put("/profesores/{profesor_id}")

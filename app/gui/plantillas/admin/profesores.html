@@ -200,14 +200,6 @@
 </div>
 
 <script>
-document.getElementById('form-crear-profesor').addEventListener('submit', function(e) {
-    const pass = document.querySelector('input[name="contrasena"]').value;
-    const pass2 = document.querySelector('input[name="contrasena_confirmar"]').value;
-    if (pass !== pass2) {
-        e.preventDefault();
-        mostrarMensaje('Las contraseñas no coinciden', 'error');
-    }
-});
 document.getElementById('buscador').addEventListener('input', function(e) {
     const busqueda = e.target.value.toLowerCase();
     const filas = document.querySelectorAll('#tabla-profesores tr');
@@ -260,9 +252,18 @@ async function editarProfesor(id) {
 }
 
 async function desactivarProfesor(id) {
+    const confirmado = await mostrarConfirmacion('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');
+    if (!confirmado) return;
+    
     try {
         const response = await fetch(`/api/admin/profesores/${id}`, {method: 'DELETE'});
-        if (response.ok) location.reload();
+        if (response.ok) {
+            mostrarMensaje('Usuario eliminado', 'success');
+            setTimeout(() => location.reload(), 1000);
+        } else {
+            const error = await response.json();
+            mostrarMensaje(error.detail || 'Error al eliminar', 'error');
+        }
     } catch (err) {
         console.error('Error al desactivar profesor');
     }
