@@ -58,7 +58,7 @@
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/>
                 </svg>
-                <span class="font-sans text-sm">Cursos</span>
+                <span class="font-sans text-sm">Programas</span>
             </a>
             
             <div class="pt-4 mt-4 border-t border-cedax-secondary/10">
@@ -109,11 +109,9 @@
                     <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2 mb-1">
                             <span class="badge-luxury text-xs">{{ curso.tipo_programa }}</span>
-                            {% if curso.activo %}
-                            <span class="px-2 py-0.5 bg-green-500/20 text-green-500 text-xs rounded-full">Activo</span>
-                            {% else %}
-                            <span class="px-2 py-0.5 bg-red-500/20 text-red-500 text-xs rounded-full">Inactivo</span>
-                            {% endif %}
+                            <button onclick="togglePrograma({{ curso.id }})" class="relative inline-flex h-5 w-9 items-center rounded-full transition-colors {% if curso.activo %}bg-green-500{% else %}bg-red-500{% endif %}">
+                                <span class="inline-block h-3 w-3 transform rounded-full bg-white transition-transform {% if curso.activo %}translate-x-5{% else %}translate-x-1{% endif %}"></span>
+                            </button>
                         </div>
                         <h3 class="font-display text-lg text-white truncate group-hover:text-cedax-secondary transition-colors">{{ curso.titulo }}</h3>
                         <p class="text-sm text-cedax-cream/50 truncate">{{ curso.descripcion[:80] if curso.descripcion else 'Sin descripción' }}</p>
@@ -195,6 +193,15 @@ function filtrarCursos(tipo) {
             curso.style.display = 'none';
         }
     });
+}
+
+async function togglePrograma(id) {
+    try {
+        const response = await fetch(`/api/coordinador/cursos/${id}/toggle`, {method: 'POST'});
+        if (response.ok) location.reload();
+    } catch (err) {
+        console.error('Error:', err);
+    }
 }
 
 document.getElementById('form-crear-curso').addEventListener('submit', async function(e) {

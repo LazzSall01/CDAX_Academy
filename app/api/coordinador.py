@@ -270,6 +270,24 @@ def toggle_profesor(profesor_id: int, request: Request, sesion: Session = Depend
     return {"success": True, "activo": profesor.activo}
 
 
+@router.get("/alumnos/{alumno_id}")
+def obtener_alumno(alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Obtener un alumno específico"""
+    verificar_coordinador(request, sesion)
+    alumno = sesion.query(Usuario).filter(Usuario.id == alumno_id).first()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+    return {
+        "id": alumno.id,
+        "nombre": alumno.nombre,
+        "apellido": alumno.apellido,
+        "email": alumno.email,
+        "telefono": alumno.telefono,
+        "activo": alumno.activo,
+        "fecha_registro": str(alumno.fecha_registro) if alumno.fecha_registro else None,
+    }
+
+
 @router.get("/alumnos")
 def listar_alumnos(
     request: Request,
@@ -344,9 +362,10 @@ def listar_alumnos(
 @router.put("/alumnos/{alumno_id}")
 def actualizar_alumno(
     alumno_id: int,
-    nombre: str,
-    apellido: str,
-    request: Request,
+    nombre: Optional[str] = None,
+    apellido: Optional[str] = None,
+    telefono: Optional[str] = None,
+    request: Request = None,
     sesion: Session = Depends(obtener_sesion),
 ):
     """Actualizar un alumno"""
@@ -361,8 +380,13 @@ def actualizar_alumno(
     if not alumno:
         raise HTTPException(status_code=404, detail="Alumno no encontrado")
 
-    alumno.nombre = nombre
-    alumno.apellido = apellido
+    if nombre is not None:
+        alumno.nombre = nombre
+    if apellido is not None:
+        alumno.apellido = apellido
+    if telefono is not None:
+        alumno.telefono = telefono
+
     sesion.commit()
 
     logger.info(f"Alumno actualizado por coordinador {usuario.email}: {alumno.email}")
@@ -624,6 +648,20 @@ def obtener_curso_coordinador(curso_id: int, sesion: Session = Depends(obtener_s
         "capacidad_maxima": curso.capacidad_maxima,
         "modulos": modulos_data,
     }
+
+
+@router.post("/cursos/{curso_id}/toggle")
+def toggle_curso(curso_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Activar/inactivar curso"""
+    from app.modelos import Curso
+
+    verificar_coordinador(request, sesion)
+    curso = sesion.query(Curso).filter(Curso.id == curso_id).first()
+    if not curso:
+        raise HTTPException(status_code=404, detail="Curso no encontrado")
+    curso.activo = not curso.activo
+    sesion.commit()
+    return {"success": True, "activo": curso.activo}
 
 
 @router.put("/cursos/{curso_id}")
