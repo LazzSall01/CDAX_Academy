@@ -252,20 +252,27 @@ async function editarProfesor(id) {
 }
 
 async function desactivarProfesor(id) {
+    console.log('Intentando eliminar usuario con ID:', id);
     const confirmado = await mostrarConfirmacion('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');
-    if (!confirmado) return;
+    if (!confirmado) {
+        console.log('Confirmación cancelada');
+        return;
+    }
     
     try {
+        console.log('Haciendo DELETE a /api/admin/profesores/' + id);
         const response = await fetch(`/api/admin/profesores/${id}`, {method: 'DELETE'});
+        console.log('Response:', response.status);
         if (response.ok) {
             mostrarMensaje('Usuario eliminado', 'success');
-            setTimeout(() => location.reload(), 1000);
+            setTimeout(() => window.location.href = '/admin/profesores', 1500);
         } else {
             const error = await response.json();
+            console.log('Error:', error);
             mostrarMensaje(error.detail || 'Error al eliminar', 'error');
         }
     } catch (err) {
-        console.error('Error al desactivar profesor');
+        console.error('Error al desactivar profesor:', err);
     }
 }
 
