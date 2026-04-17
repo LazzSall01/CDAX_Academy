@@ -67,17 +67,10 @@
                                 {% endif %}
                             </td>
                             <td class="px-6 py-4">
-                                {% if profesor.activo %}
-                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-green-500/20 text-green-500 text-sm">
-                                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
-                                    Activo
-                                </span>
-                                {% else %}
-                                <span class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-red-500/20 text-red-500 text-sm">
-                                    <span class="w-2 h-2 rounded-full bg-red-500"></span>
-                                    Inactivo
-                                </span>
-                                {% endif %}
+                                <!-- Toggle switch para activar/inactivar -->
+                                <button onclick="toggleActivoUsuario({{ profesor.id }})" class="relative inline-flex h-6 w-11 items-center rounded-full transition-colors {% if profesor.activo %}bg-green-500{% else %}bg-red-500{% endif %}">
+                                    <span class="inline-block h-4 w-4 transform rounded-full bg-white transition-transform {% if profesor.activo %}translate-x-6{% else %}translate-x-1{% endif %}"></span>
+                                </button>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2">
@@ -86,13 +79,11 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                         </svg>
                                     </button>
-                                    {% if profesor.activo %}
-                                    <button onclick="desactivarProfesor({{ profesor.id }})" class="p-2 rounded-lg hover:bg-cedax-accent/20 text-cedax-cream/60 hover:text-cedax-accent transition-all duration-200">
+                                    <button onclick="eliminarUsuario({{ profesor.id }})" class="p-2 rounded-lg hover:bg-red-500/20 text-cedax-cream/60 hover:text-red-500 transition-all duration-200" title="Eliminar usuario">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
                                         </svg>
                                     </button>
-                                    {% endif %}
                                 </div>
                             </td>
                         </tr>
@@ -251,29 +242,45 @@ async function editarProfesor(id) {
     }
 }
 
-async function desactivarProfesor(id) {
-    console.log('Intentando eliminar usuario con ID:', id);
-    const confirmado = await mostrarConfirmacion('¿Estás seguro de eliminar este usuario? Esta acción no se puede deshacer.');
-    if (!confirmado) {
-        console.log('Confirmación cancelada');
-        return;
+// Toggle para activar/inactivar usuario
+async function toggleActivoUsuario(id) {
+    try {
+        const response = await fetch(`/api/admin/usuarios/${id}/toggle`, {method: 'POST'});
+        if (response.ok) {
+            window.location.href = '/admin/profesores';
+        } else {
+            const error = await response.json();
+            mostrarMensaje(error.detail || 'Error al cambiar estado', 'error');
+        }
+    } catch (err) {
+        console.error('Error:', err);
     }
+}
+
+// Eliminar usuario definitivamente
+async function eliminarUsuario(id) {
+    const confirmado = await mostrarConfirmacion('¿Estás seguro de ELIMINAR este usuario DEFINITIVAMENTE? Esta acción no se puede deshacer.');
+    if (!confirmado) return;
     
     try {
-        console.log('Haciendo DELETE a /api/admin/profesores/' + id);
-        const response = await fetch(`/api/admin/profesores/${id}`, {method: 'DELETE'});
-        console.log('Response:', response.status);
+        const response = await fetch(`/api/admin/usuarios/${id}`, {method: 'DELETE'});
         if (response.ok) {
-            mostrarMensaje('Usuario eliminado', 'success');
+            mostrarMensaje('Usuario eliminado permanentemente', 'success');
             setTimeout(() => window.location.href = '/admin/profesores', 1500);
         } else {
             const error = await response.json();
-            console.log('Error:', error);
             mostrarMensaje(error.detail || 'Error al eliminar', 'error');
         }
     } catch (err) {
-        console.error('Error al desactivar profesor:', err);
+        console.error('Error:', err);
     }
+}
+
+// Desactivar usuario (para compatibilidad)
+async function desactivarProfesor(id) {
+    const toggle = await mostrarConfirmacion('¿Inactivar este usuario? Podrá volver a activarse después.');
+    if (!toggle) return;
+    await toggleActivoUsuario(id);
 }
 
 document.getElementById('form-editar-profesor').addEventListener('submit', async function(e) {

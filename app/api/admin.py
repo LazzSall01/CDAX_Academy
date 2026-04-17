@@ -184,6 +184,47 @@ def actualizar_usuario(
     return {"success": True}
 
 
+@router.post("/usuarios/{usuario_id}/toggle")
+def toggle_usuario(usuario_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Activar/inactivar usuario"""
+    verificar_admin(request, sesion)
+
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # No permitir tocar al admin
+    if usuario.rol == RolUsuario.ADMIN:
+        raise HTTPException(status_code=400, detail="No puedes modificar al administrador")
+
+    usuario.activo = not usuario.activo
+    sesion.commit()
+
+    logger.info(f"Usuario toggled: {usuario.email} - activo: {usuario.activo}")
+    return {"success": True, "activo": usuario.activo}
+
+
+@router.delete("/usuarios/{usuario_id}")
+def eliminar_usuario(usuario_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Eliminar usuario definitivamente"""
+    verificar_admin(request, sesion)
+
+    usuario = sesion.query(Usuario).filter(Usuario.id == usuario_id).first()
+    if not usuario:
+        raise HTTPException(status_code=404, detail="Usuario no encontrado")
+
+    # No permitir eliminar al admin
+    if usuario.rol == RolUsuario.ADMIN:
+        raise HTTPException(status_code=400, detail="No puedes eliminar al administrador")
+
+    email = usuario.email
+    sesion.delete(usuario)
+    sesion.commit()
+
+    logger.info(f"Usuario eliminado definitivamente: {email}")
+    return {"success": True}
+
+
 @router.post("/usuarios")
 def crear_usuario(
     data: CrearUsuarioRequest, request: Request, sesion: Session = Depends(obtener_sesion)

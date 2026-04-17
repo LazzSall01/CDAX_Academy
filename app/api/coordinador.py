@@ -36,6 +36,14 @@ class CrearProfesorRequest(BaseModel):
     especialidad: Optional[str] = Field(None, max_length=200, description="Especialidad")
 
 
+class ActualizarProfesorRequest(BaseModel):
+    nombre: Optional[str] = Field(None, max_length=100, description="Nombre")
+    apellido: Optional[str] = Field(None, max_length=100, description="Apellido")
+    telefono: Optional[str] = Field(None, max_length=20, description="Teléfono")
+    biografia: Optional[str] = Field(None, max_length=2000, description="Biografía")
+    especialidad: Optional[str] = Field(None, max_length=200, description="Especialidad")
+
+
 class CrearCursoRequest(BaseModel):
     titulo: str = Field(..., min_length=1, max_length=255, description="Título del curso")
     descripcion: str = Field(..., max_length=2000, description="Descripción del curso")
@@ -75,6 +83,24 @@ def dashboard(request: Request, sesion: Session = Depends(obtener_sesion)):
             "total_cursos": total_cursos,
             "cursos_activos": cursos_activos,
         },
+    }
+
+
+@router.get("/profesores/{profesor_id}")
+def obtener_profesor(profesor_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Obtener un profesor específico"""
+    verificar_coordinador(request, sesion)
+    profesor = sesion.query(Usuario).filter(Usuario.id == profesor_id).first()
+    if not profesor:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+    return {
+        "id": profesor.id,
+        "nombre": profesor.nombre,
+        "apellido": profesor.apellido,
+        "email": profesor.email,
+        "especialidad": profesor.especialidad,
+        "biografia": profesor.biografia,
+        "activo": profesor.activo,
     }
 
 
@@ -170,7 +196,7 @@ def crear_profesor(
 @router.put("/profesores/{profesor_id}")
 def actualizar_profesor(
     profesor_id: int,
-    data: CrearProfesorRequest,
+    data: ActualizarProfesorRequest,
     request: Request,
     sesion: Session = Depends(obtener_sesion),
 ):
@@ -186,28 +212,21 @@ def actualizar_profesor(
     if not profesor:
         raise HTTPException(status_code=404, detail="Profesor no encontrado")
 
-    email_existe = (
-        sesion.query(Usuario).filter(Usuario.email == data.email, Usuario.id != profesor_id).first()
-    )
-    if email_existe:
-        raise HTTPException(status_code=400, detail="El email ya está en uso")
-
-    profesor.email = data.email
-    profesor.nombre = data.nombre
-    profesor.apellido = data.apellido
-    profesor.telefono = data.telefono
-    profesor.biografia = data.biografia
-    profesor.especialidad = data.especialidad
-
-    if data.contrasena:
-        from app.repositorios.usuario_repositorio import hash_contrasena
-
-        profesor.contrasena_hash = hash_contrasena(data.contrasena)
+    if data.nombre is not None:
+        profesor.nombre = data.nombre
+    if data.apellido is not None:
+        profesor.apellido = data.apellido
+    if data.telefono is not None:
+        profesor.telefono = data.telefono
+    if data.biografia is not None:
+        profesor.biografia = data.biografia
+    if data.especialidad is not None:
+        profesor.especialidad = data.especialidad
 
     sesion.commit()
 
     logger.info(f"Profesor actualizado por coordinador {usuario.email}: {profesor.email}")
-    return {"success": True, "profesor_id": profesor.id}
+    return {"success": True}
 
 
 @router.delete("/profesores/{profesor_id}")
@@ -231,6 +250,24 @@ def eliminar_profesor(
 
     logger.info(f"Profesor desactivado por coordinador {usuario.email}: {profesor.email}")
     return {"success": True, "message": "Profesor desactivado correctamente"}
+
+
+@router.post("/profesores/{profesor_id}/toggle")
+def toggle_profesor(profesor_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Activar/inactivar profesor"""
+    usuario = verificar_coordinador(request, sesion)
+
+    profesor = sesion.query(Usuario).filter(Usuario.id == profesor_id).first()
+    if not profesor:
+        raise HTTPException(status_code=404, detail="Profesor no encontrado")
+
+    profesor.activo = not profesor.activo
+    sesion.commit()
+
+    logger.info(
+        f"Profesor toggled por coordinador {usuario.email}: {profesor.email} - activo: {profesor.activo}"
+    )
+    return {"success": True, "activo": profesor.activo}
 
 
 @router.get("/alumnos")
@@ -351,6 +388,24 @@ def eliminar_alumno(alumno_id: int, request: Request, sesion: Session = Depends(
 
     logger.info(f"Alumno desactivado por coordinador {usuario.email}: {alumno.email}")
     return {"success": True, "message": "Alumno desactivado correctamente"}
+
+
+@router.post("/alumnos/{alumno_id}/toggle")
+def toggle_alumno(alumno_id: int, request: Request, sesion: Session = Depends(obtener_sesion)):
+    """Activar/inactivar alumno"""
+    usuario = verificar_coordinador(request, sesion)
+
+    alumno = sesion.query(Usuario).filter(Usuario.id == alumno_id).first()
+    if not alumno:
+        raise HTTPException(status_code=404, detail="Alumno no encontrado")
+
+    alumno.activo = not alumno.activo
+    sesion.commit()
+
+    logger.info(
+        f"Alumno toggled por coordinador {usuario.email}: {alumno.email} - activo: {alumno.activo}"
+    )
+    return {"success": True, "activo": alumno.activo}
 
 
 @router.get("/cursos")
